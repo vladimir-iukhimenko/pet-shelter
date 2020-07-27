@@ -8,15 +8,14 @@ import org.springframework.security.web.server.SecurityWebFilterChain;
 @EnableWebFluxSecurity
 public class ResourceServerConfig {
 
-    private static final String[] SECURED_PATTERN = new String[] {};
-    private static final String[] NOT_SECURED_PATTERN = new String[] {};
+    private static final String[] SECURED_PATTERN = new String[] {"/boom"};
 
     @Bean
-    public SecurityWebFilterChain configure(ServerHttpSecurity http) throws Exception {
+    public SecurityWebFilterChain configure(ServerHttpSecurity http) {
         http.exceptionHandling().authenticationEntryPoint(new AuthExceptionEntryPoint());
 
         http.authorizeExchange()
-                //.pathMatchers().permitAll()
+                .pathMatchers(SECURED_PATTERN).authenticated()
                 .anyExchange().permitAll()
                 .and().oauth2Login();
         return http.build();
