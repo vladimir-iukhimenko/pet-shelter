@@ -13,9 +13,7 @@ public class PassportVaccination {
     @Id
     private Long id;
     @NotNull
-    private Passport passportByPassportId;
-    @NotNull
-    private RefVaccination vaccineByvaccineId;
+    private RefVaccination vaccineByVaccineId;
     @NotNull
     private LocalDate validityStart;
     @NotNull
