@@ -8,29 +8,19 @@ import ru.pet.shelter.model.helper.Sex;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 
-@Data
-@AllArgsConstructor
-public class Pet {
+public abstract class Pet {
 
-    @Id
-    private Long petId;
     @NotNull
-    private String name;
-    private LocalDate born;
-    private Passport passportByPassportId;
-    private RefFur furByRefFurId;
-    private RefFurColor furColorByRefFurColorId;
-    @NotNull
-    private Sex sex;
-    @NotNull
-    private Boolean isSterialized;
-    private Photo avatarByPhotoId;
+    String name;
+    LocalDate born;
+    Sex sex;
+    Boolean isSterialized;
+    Photo avatarByPhotoId;
     //private Integer curatorByCuratorId; todo:user entity
     @NotNull
-    private String status;
-    private LocalDate appearanceDate;
-    private String features;
-    private Chip chipByChipid;
+    String status;
+    LocalDate appearanceDate;
+    String features;
     @NotNull
-    private RefShelter shelterByRefShelterId;
+    RefShelter shelterByRefShelterId;
 }

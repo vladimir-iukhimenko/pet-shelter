@@ -1,3 +1,4 @@
+/*
 package ru.pet.shelter.config;
 
 import org.hibernate.SessionFactory;
@@ -57,3 +58,4 @@ public class HibernateConfiguration {
 
 
 }
+*/
