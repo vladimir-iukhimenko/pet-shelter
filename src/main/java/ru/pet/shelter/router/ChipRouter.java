@@ -1,20 +1,19 @@
 package ru.pet.shelter.router;
 
+import org.springdoc.core.annotations.RouterOperation;
+import org.springdoc.core.annotations.RouterOperations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpStatus;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.server.RouterFunction;
+import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
+import reactor.core.publisher.Mono;
 import ru.pet.shelter.model.Chip;
 import ru.pet.shelter.repository.ChipRepository;
 
-import static org.springframework.web.reactive.function.server.RequestPredicates.*;
-import static org.springframework.web.reactive.function.server.RequestPredicates.DELETE;
 import static org.springframework.web.reactive.function.server.RouterFunctions.route;
-import static org.springframework.web.reactive.function.server.ServerResponse.ok;
-import static org.springframework.web.reactive.function.server.ServerResponse.status;
+import static org.springframework.web.reactive.function.server.ServerResponse.*;
 
 @Configuration
 public class ChipRouter {
@@ -22,30 +21,56 @@ public class ChipRouter {
     @Autowired
     private ChipRepository chipRepository;
 
+    @RouterOperations({@RouterOperation(path = "/chip", beanClass = ChipRepository.class, beanMethod = "findAll"),
+                        @RouterOperation(path = "/chip/{id}", beanClass = ChipRepository.class, beanMethod = "findById")})
     @Bean
-    @Transactional
-    RouterFunction<ServerResponse> chipCrudRoutes() {
+    RouterFunction<?> chipRoutes() {
         return
-                route(GET("/chip"),
-                        serverRequest -> ok().body(chipRepository.findAll(), Chip.class))
-                        .and(
-                                route(GET("/chip/{id}"),
-                                        serverRequest -> ok().body(chipRepository.findById(serverRequest.pathVariable("id")), Chip.class)))
-                        .and(
-                                route(POST("/chip/"),
-                                        serverRequest -> serverRequest.bodyToMono(Chip.class)
-                                                .doOnNext(chipRepository::save)
-                                                .then(ok().build())))
-                        .and(
-                                route(PUT("/chip/{id}"),
-                                        serverRequest -> serverRequest.bodyToMono(Chip.class)
-                                                .doOnNext(chipRepository::save)
-                                                .then(ok().build()))
-                        )
-                        .and(
-                                route(DELETE("/chip/{id}"),
-                                        serverRequest -> chipRepository.deleteById(serverRequest.pathVariable("id"))
-                                                .then(status(HttpStatus.NOT_FOUND).build()))
-                        );
+                route()
+                        .GET("/chip", this::getAllChips)
+
+                        .GET("/chip/{id}", this::getChipById)
+
+                        .POST("/chip", this::insertChip)
+
+                        .PUT("/chip/{id}", this::updateChip)
+
+                        .DELETE("/chip/{id}", this::deleteChip)
+
+                        .GET("/chip/empty", this::emptyChip)
+
+                        .build();
+
+    }
+
+
+    private Mono<ServerResponse> getAllChips(ServerRequest request) {
+        return ok().body(chipRepository.findAll(), Chip.class);
+    }
+
+    private Mono<ServerResponse> getChipById(ServerRequest request) {
+        return chipRepository.findById(request.pathVariable("id"))
+                .flatMap(chip -> ok().bodyValue(chip))
+                .switchIfEmpty(notFound().build());
+    }
+
+    private Mono<ServerResponse> insertChip(ServerRequest request) {
+        return request.bodyToMono(Chip.class)
+                .flatMap(chip -> ok().body(chipRepository.save(chip), Chip.class));
+    }
+
+    private Mono<ServerResponse> updateChip(ServerRequest request) {
+        return chipRepository.findById(request.pathVariable("id"))
+                .flatMap(chip -> ok().body(chipRepository.save(chip), Chip.class))
+                .switchIfEmpty(notFound().build());
+    }
+
+    private Mono<ServerResponse> deleteChip(ServerRequest request) {
+        return chipRepository.deleteById(request.pathVariable("id"))
+                .then(noContent().build());
+    }
+
+    private Mono<ServerResponse> emptyChip(ServerRequest request) {
+        return ok().bodyValue(new Chip());
     }
 }
