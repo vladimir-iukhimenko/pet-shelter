@@ -14,10 +14,11 @@ public class ResourceServerConfig {
     public SecurityWebFilterChain configure(ServerHttpSecurity http) {
         http.exceptionHandling().authenticationEntryPoint(new AuthExceptionEntryPoint());
 
-        http.csrf().disable().authorizeExchange()
+        http.csrf().disable()
+                /*.authorizeExchange()
                 .pathMatchers(SECURED_PATTERN).authenticated()
                 .anyExchange().permitAll()
-                .and().oauth2Login();
+                .and().oauth2Login()*/;
         return http.build();
     }
 }
