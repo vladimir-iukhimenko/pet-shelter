@@ -18,7 +18,7 @@
         <java.version>11</java.version>
         <io.springfox>3.0.0</io.springfox>
         <openapi-webflux>1.4.3</openapi-webflux>
-        <slf4j-api></slf4j-api>
+        <slf4j-api>1.7.30</slf4j-api>
     </properties>
 
     <dependencies>

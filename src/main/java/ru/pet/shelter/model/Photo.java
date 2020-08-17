@@ -11,7 +11,7 @@ import javax.validation.constraints.NotNull;
 public class Photo {
 
     @Id
-    private Long photoId;
+    private String photoId;
     @NotNull
     private Pet petByPetId;
     @NotNull

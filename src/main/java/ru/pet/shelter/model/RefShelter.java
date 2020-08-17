@@ -12,7 +12,7 @@ import javax.validation.constraints.NotNull;
 public class RefShelter {
 
     @Id
-    private Long id;
+    private String id;
     @NotNull
     @Max(value = 32)
     private String type;

@@ -12,7 +12,7 @@ import javax.validation.constraints.NotNull;
 public class RefVaccination {
 
     @Id
-    private Long id;
+    private String  id;
     @NotNull
     @Max(value = 50)
     private String vaccineName;

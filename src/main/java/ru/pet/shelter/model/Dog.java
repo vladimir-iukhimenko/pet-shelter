@@ -14,7 +14,7 @@ import java.util.Set;
 public class Dog extends Pet {
 
     @Id
-    private Long dogId;
+    private String dogId;
     private Integer length;
     private Integer height;
     private Integer weight;

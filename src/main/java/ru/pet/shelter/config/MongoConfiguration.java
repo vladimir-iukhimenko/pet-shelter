@@ -8,13 +8,14 @@ import org.springframework.data.mongodb.repository.config.EnableReactiveMongoRep
 
 @EnableReactiveMongoRepositories
 public class MongoConfiguration extends AbstractReactiveMongoConfiguration {
-    @Override
-    protected String getDatabaseName() {
-        return "pet_shelter";
-    }
 
     @Bean
     public MongoClient mongoClient() {
         return MongoClients.create();
+    }
+
+    @Override
+    protected String getDatabaseName() {
+        return null;
     }
 }

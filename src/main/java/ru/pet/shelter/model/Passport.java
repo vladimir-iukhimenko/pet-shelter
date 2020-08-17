@@ -12,7 +12,7 @@ import java.util.Set;
 public class Passport {
 
     @Id
-    private Long passportid;
+    private String passportId;
     @NotNull
     private Long number;
     private Photo photoByPhotoId;
