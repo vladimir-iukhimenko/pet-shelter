@@ -19,7 +19,7 @@ public class CatRouterTests {
     private CatRepository catRepository;
 
     public void catGetterTest() {
-        WebTestClient client = WebTestClient.bindToRouterFunction(catRouter.catCrudRoutes()).build();
+        WebTestClient client = WebTestClient.bindToRouterFunction(catRouter.catRoutes()).build();
 
         Cat cat = new Cat();
 

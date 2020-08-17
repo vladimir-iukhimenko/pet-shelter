@@ -12,7 +12,7 @@ import java.time.LocalDate;
 public class Request {
 
     @Id
-    private Long requestId;
+    private String requestId;
     @NotNull
     private LocalDate requestDate;
     @NotNull

@@ -11,7 +11,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class PassportVaccination {
     @Id
-    private Long id;
+    private String id;
     @NotNull
     private RefVaccination vaccineByVaccineId;
     @NotNull

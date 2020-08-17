@@ -11,7 +11,7 @@ import javax.validation.constraints.NotNull;
 public class RefFur {
 
     @Id
-    private Long furId;
+    private String furId;
     @NotNull
     private String furName;
 }

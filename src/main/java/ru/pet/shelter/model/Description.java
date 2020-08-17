@@ -12,7 +12,7 @@ import java.time.LocalDate;
 public class Description {
 
     @Id
-    private Long id;
+    private String id;
     @NotNull
     private String descriptionText;
     @NotNull
