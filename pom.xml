@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.3.1.RELEASE</version>
+        <version>2.3.3.RELEASE</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>ru.pet</groupId>
@@ -18,7 +18,6 @@
         <java.version>11</java.version>
         <io.springfox>3.0.0</io.springfox>
         <openapi-webflux>1.4.3</openapi-webflux>
-        <slf4j-api>1.7.30</slf4j-api>
     </properties>
 
     <dependencies>
@@ -57,11 +56,9 @@
             <version>${openapi-webflux}</version>
         </dependency>
 
-
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>${slf4j-api}</version>
         </dependency>
 
         <dependency>
