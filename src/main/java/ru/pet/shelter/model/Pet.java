@@ -1,8 +1,5 @@
 package ru.pet.shelter.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import org.springframework.data.annotation.Id;
 import ru.pet.shelter.model.helper.Sex;
 
 import javax.validation.constraints.NotNull;

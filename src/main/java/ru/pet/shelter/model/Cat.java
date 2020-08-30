@@ -13,6 +13,8 @@ import java.util.Set;
 
 @Data
 @Document(collection = "cat")
+@AllArgsConstructor
+@NoArgsConstructor
 public class Cat extends Pet{
 
     @Id
