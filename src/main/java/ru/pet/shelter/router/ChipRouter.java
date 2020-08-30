@@ -25,11 +25,14 @@ import static org.springframework.http.HttpStatus.*;
 @Configuration
 public class ChipRouter {
 
-    @Autowired
-    private ChipRepository chipRepository;
+    private final ChipRepository chipRepository;
+    private final Validator validator;
 
     @Autowired
-    private Validator validator;
+    public ChipRouter(ChipRepository chipRepository, Validator validator) {
+        this.chipRepository = chipRepository;
+        this.validator = validator;
+    }
 
     @Bean
     @RouterOperations({@RouterOperation(path = "/chip", beanClass = ChipRepository.class, beanMethod = "findAll"),

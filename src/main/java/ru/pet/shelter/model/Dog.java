@@ -2,15 +2,17 @@ package ru.pet.shelter.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
-import ru.pet.shelter.model.helper.Sex;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.validation.constraints.NotNull;
-import java.time.LocalDate;
 import java.util.Set;
 
 @Data
+@Document(collection = "dog")
 @AllArgsConstructor
+@NoArgsConstructor
 public class Dog extends Pet {
 
     @Id

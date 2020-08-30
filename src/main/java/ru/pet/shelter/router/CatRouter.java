@@ -25,11 +25,14 @@ import ru.pet.shelter.repository.CatRepository;
 @Configuration
 public class CatRouter {
 
-    @Autowired
-    private CatRepository catRepository;
+    private final CatRepository catRepository;
+    private final Validator validator;
 
     @Autowired
-    private Validator validator;
+    public CatRouter(CatRepository catRepository, Validator validator) {
+        this.catRepository = catRepository;
+        this.validator = validator;
+    }
 
     @Bean
     @RouterOperations({@RouterOperation(path = "/cat", beanClass = CatRepository.class, beanMethod = "findAll"),
