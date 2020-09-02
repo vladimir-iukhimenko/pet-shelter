@@ -10,14 +10,16 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 import org.springframework.web.reactive.function.server.RouterFunction;
+import org.springframework.web.reactive.function.server.RouterFunctions;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import org.springframework.web.server.ServerWebInputException;
 import reactor.core.publisher.Mono;
 import ru.pet.shelter.model.Chip;
-import ru.pet.shelter.repository.ChipRepository;
+import ru.pet.shelter.service.ChipService;
 
-import static org.springframework.web.reactive.function.server.RouterFunctions.route;
+import static org.springframework.web.reactive.function.server.RequestPredicates.*;
+import static org.springframework.web.reactive.function.server.RequestPredicates.accept;
 import static org.springframework.web.reactive.function.server.ServerResponse.*;
 import static org.springframework.http.HttpStatus.*;
 
@@ -25,45 +27,42 @@ import static org.springframework.http.HttpStatus.*;
 @Configuration
 public class ChipRouter {
 
-    private final ChipRepository chipRepository;
     private final Validator validator;
+    private final ChipService chipService;
 
     @Autowired
-    public ChipRouter(ChipRepository chipRepository, Validator validator) {
-        this.chipRepository = chipRepository;
+    public ChipRouter(ChipService chipService, Validator validator) {
         this.validator = validator;
+        this.chipService = chipService;
     }
 
     @Bean
-    @RouterOperations({@RouterOperation(path = "/chip", beanClass = ChipRepository.class, beanMethod = "findAll"),
-                        @RouterOperation(path = "/chip/{id}", beanClass = ChipRepository.class, beanMethod = "findById")})
+    @RouterOperations({
+            @RouterOperation(path = "/chip", beanClass = ChipService.class, beanMethod = "getAll"),
+            @RouterOperation(path = "/chip/{id}", beanClass = ChipService.class, beanMethod = "getById"),
+            @RouterOperation(path = "/chip/save", beanClass = ChipService.class, beanMethod = "save"),
+            @RouterOperation(path = "/chip/update/{id}", beanClass = ChipService.class, beanMethod = "update"),
+            @RouterOperation(path = "/chip/delete/{id}", beanClass = ChipService.class, beanMethod = "deleteById"),
+            @RouterOperation(path = "/chip/empty", beanClass = ChipService.class, beanMethod = "empty")
+    })
     RouterFunction<ServerResponse> chipRoutes() {
-        return
-                route()
-                        .GET("/chip", this::getAllChips)
-
-                        .GET("/chip/{id}", this::getChipById)
-
-                        .POST("/chip", this::insertChip)
-
-                        .PUT("/chip/{id}", this::updateChip)
-
-                        .DELETE("/chip/{id}", this::deleteChip)
-
-                        .GET("/chip/empty", this::emptyChip)
-
-                        .build();
-
+        return RouterFunctions
+                .route(GET("/chip").and(accept(MediaType.APPLICATION_JSON)), this::getAllChips)
+                .andRoute(GET("/chip/{id}").and(accept(MediaType.APPLICATION_JSON)), this::getChipById)
+                .andRoute(POST("/chip/save").and(accept(MediaType.APPLICATION_JSON)), this::insertChip)
+                .andRoute(PUT("/chip/update/{id}").and(accept(MediaType.APPLICATION_JSON)), this::updateChip)
+                .andRoute(DELETE("/chip/delete/{id}").and(accept(MediaType.APPLICATION_JSON)), this::deleteChip)
+                .andRoute(GET("/chip/empty").and(accept(MediaType.APPLICATION_JSON)), this::emptyChip);
     }
 
     Mono<ServerResponse> notFound = ServerResponse.notFound().build();
 
     private Mono<ServerResponse> getAllChips(ServerRequest request) {
-        return ok().contentType(MediaType.APPLICATION_JSON).body(chipRepository.findAll(), Chip.class);
+        return ok().contentType(MediaType.APPLICATION_JSON).body(chipService.getAll(), Chip.class);
     }
 
     private Mono<ServerResponse> getChipById(ServerRequest request) {
-        return chipRepository.findById(request.pathVariable("id"))
+        return chipService.getById(request.pathVariable("id"))
                 .flatMap(chip -> ok()
                         .contentType(MediaType.APPLICATION_JSON)
                         .bodyValue(chip))
@@ -75,7 +74,7 @@ public class ChipRouter {
                 .doOnNext(this::validate)
                 .flatMap(chip -> status(CREATED)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .body(chipRepository.save(chip), Chip.class));
+                        .body(chipService.save(chip), Chip.class));
     }
 
     private Mono<ServerResponse> updateChip(ServerRequest request) {
@@ -83,17 +82,17 @@ public class ChipRouter {
                 .doOnNext(this::validate)
                 .flatMap(chip -> ok()
                         .contentType(MediaType.APPLICATION_JSON)
-                        .body(chipRepository.save(chip), Chip.class))
+                        .body(chipService.save(chip), Chip.class))
                 .switchIfEmpty(notFound);
     }
 
     private Mono<ServerResponse> deleteChip(ServerRequest request) {
-        return chipRepository.deleteById(request.pathVariable("id"))
+        return chipService.deleteById(request.pathVariable("id"))
                 .then(noContent().build());
     }
 
     private Mono<ServerResponse> emptyChip(ServerRequest request) {
-        return ok().bodyValue(new Chip());
+        return ok().bodyValue(chipService.empty());
     }
 
     private void validate(Chip chip) {

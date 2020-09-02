@@ -10,15 +10,17 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 import org.springframework.web.reactive.function.server.RouterFunction;
+import org.springframework.web.reactive.function.server.RouterFunctions;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import org.springframework.web.server.ServerWebInputException;
 import reactor.core.publisher.Mono;
 import ru.pet.shelter.model.RefFur;
-import ru.pet.shelter.repository.RefFurRepository;
+import ru.pet.shelter.service.RefFurService;
 
 import static org.springframework.http.HttpStatus.CREATED;
-import static org.springframework.web.reactive.function.server.RouterFunctions.route;
+import static org.springframework.web.reactive.function.server.RequestPredicates.*;
+import static org.springframework.web.reactive.function.server.RequestPredicates.accept;
 import static org.springframework.web.reactive.function.server.ServerResponse.*;
 import static org.springframework.web.reactive.function.server.ServerResponse.ok;
 
@@ -26,45 +28,42 @@ import static org.springframework.web.reactive.function.server.ServerResponse.ok
 @Configuration
 public class RefFurRouter {
 
-    private final RefFurRepository refFurRepository;
+    private final RefFurService refFurService;
     private final Validator validator;
 
     @Autowired
-    public RefFurRouter(RefFurRepository refFurRepository, Validator validator) {
-        this.refFurRepository = refFurRepository;
+    public RefFurRouter(RefFurService refFurService, Validator validator) {
+        this.refFurService = refFurService;
         this.validator = validator;
     }
 
     @Bean
-    @RouterOperations({@RouterOperation(path = "/ref-fur", beanClass = RefFurRepository.class, beanMethod = "findAll"),
-            @RouterOperation(path = "/ref-fur/{id}", beanClass = RefFurRepository.class, beanMethod = "findById")})
+    @RouterOperations({
+            @RouterOperation(path = "/ref-Fur", beanClass = RefFurService.class, beanMethod = "getAll"),
+            @RouterOperation(path = "/ref-Fur/{id}", beanClass = RefFurService.class, beanMethod = "getById"),
+            @RouterOperation(path = "/ref-Fur/save", beanClass = RefFurService.class, beanMethod = "save"),
+            @RouterOperation(path = "/ref-Fur/update/{id}", beanClass = RefFurService.class, beanMethod = "update"),
+            @RouterOperation(path = "/ref-Fur/delete/{id}", beanClass = RefFurService.class, beanMethod = "deleteById"),
+            @RouterOperation(path = "/ref-Fur/empty", beanClass = RefFurService.class, beanMethod = "empty")
+    })
     RouterFunction<ServerResponse> refFurRoutes() {
-        return
-                route()
-                        .GET("/ref-fur", this::getAllRefFurs)
-
-                        .GET("/ref-fur/{id}", this::getRefFurById)
-
-                        .POST("/ref-fur", this::insertRefFur)
-
-                        .PUT("/ref-fur/{id}", this::updateRefFur)
-
-                        .DELETE("/ref-fur/{id}", this::deleteRefFur)
-
-                        .GET("/ref-fur/empty", this::emptyRefFur)
-
-                        .build();
-
+        return RouterFunctions
+                .route(GET("/ref-Fur").and(accept(MediaType.APPLICATION_JSON)), this::getAllRefFurs)
+                .andRoute(GET("/ref-Fur/{id}").and(accept(MediaType.APPLICATION_JSON)), this::getRefFurById)
+                .andRoute(POST("/ref-Fur/save").and(accept(MediaType.APPLICATION_JSON)), this::insertRefFur)
+                .andRoute(PUT("/ref-Fur/update/{id}").and(accept(MediaType.APPLICATION_JSON)), this::updateRefFur)
+                .andRoute(DELETE("/ref-Fur/delete/{id}").and(accept(MediaType.APPLICATION_JSON)), this::deleteRefFur)
+                .andRoute(GET("/ref-Fur/empty").and(accept(MediaType.APPLICATION_JSON)), this::emptyRefFur);
     }
 
     Mono<ServerResponse> notFound = ServerResponse.notFound().build();
 
     private Mono<ServerResponse> getAllRefFurs(ServerRequest request) {
-        return ok().contentType(MediaType.APPLICATION_JSON).body(refFurRepository.findAll(), RefFur.class);
+        return ok().contentType(MediaType.APPLICATION_JSON).body(refFurService.getAll(), RefFur.class);
     }
 
     private Mono<ServerResponse> getRefFurById(ServerRequest request) {
-        return refFurRepository.findById(request.pathVariable("id"))
+        return refFurService.getById(request.pathVariable("id"))
                 .flatMap(refFur -> ok()
                         .contentType(MediaType.APPLICATION_JSON)
                         .bodyValue(refFur))
@@ -76,7 +75,7 @@ public class RefFurRouter {
                 .doOnNext(this::validate)
                 .flatMap(refFur -> status(CREATED)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .body(refFurRepository.save(refFur), RefFur.class));
+                        .body(refFurService.save(refFur), RefFur.class));
     }
 
     private Mono<ServerResponse> updateRefFur(ServerRequest request) {
@@ -84,17 +83,17 @@ public class RefFurRouter {
                 .doOnNext(this::validate)
                 .flatMap(refFur -> ok()
                         .contentType(MediaType.APPLICATION_JSON)
-                        .body(refFurRepository.save(refFur), RefFur.class))
+                        .body(refFurService.save(refFur), RefFur.class))
                 .switchIfEmpty(notFound);
     }
 
     private Mono<ServerResponse> deleteRefFur(ServerRequest request) {
-        return refFurRepository.deleteById(request.pathVariable("id"))
+        return refFurService.deleteById(request.pathVariable("id"))
                 .then(noContent().build());
     }
 
     private Mono<ServerResponse> emptyRefFur(ServerRequest request) {
-        return ok().bodyValue(new RefFur());
+        return ok().bodyValue(refFurService.empty());
     }
 
     private void validate(RefFur refFur) {

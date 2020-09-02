@@ -10,60 +10,60 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 import org.springframework.web.reactive.function.server.RouterFunction;
+import org.springframework.web.reactive.function.server.RouterFunctions;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import org.springframework.web.server.ServerWebInputException;
 import reactor.core.publisher.Mono;
 import ru.pet.shelter.model.Dog;
-import ru.pet.shelter.repository.DogRepository;
+import ru.pet.shelter.service.DogService;
 
 import static org.springframework.http.HttpStatus.CREATED;
-import static org.springframework.web.reactive.function.server.RouterFunctions.route;
+import static org.springframework.web.reactive.function.server.RequestPredicates.*;
+import static org.springframework.web.reactive.function.server.RequestPredicates.accept;
 import static org.springframework.web.reactive.function.server.ServerResponse.*;
 import static org.springframework.web.reactive.function.server.ServerResponse.ok;
 
 @Configuration
 public class DogRouter {
 
-    private DogRepository dogRepository;
-    private Validator validator;
+    private final DogService dogService;
+    private final Validator validator;
 
     @Autowired
-    public DogRouter(DogRepository dogRepository, Validator validator) {
-        this.dogRepository = dogRepository;
+    public DogRouter(DogService dogService, Validator validator) {
+        this.dogService = dogService;
         this.validator = validator;
     }
 
     @Bean
-    @RouterOperations({@RouterOperation(path = "/dog", beanClass = DogRepository.class, beanMethod = "findAll"),
-            @RouterOperation(path = "/dog/{id}", beanClass = DogRepository.class, beanMethod = "findById")})
+    @RouterOperations({
+            @RouterOperation(path = "/dog", beanClass = DogService.class, beanMethod = "getAll"),
+            @RouterOperation(path = "/dog/{id}", beanClass = DogService.class, beanMethod = "getById"),
+            @RouterOperation(path = "/dog/save", beanClass = DogService.class, beanMethod = "save"),
+            @RouterOperation(path = "/dog/update/{id}", beanClass = DogService.class, beanMethod = "update"),
+            @RouterOperation(path = "/dog/delete/{id}", beanClass = DogService.class, beanMethod = "deleteById"),
+            @RouterOperation(path = "/dog/empty", beanClass = DogService.class, beanMethod = "empty")
+    })
     RouterFunction<ServerResponse> dogRoutes() {
-        return
-                route()
-                        .GET("/dog", this::getAllDogs)
-
-                        .GET("/dog/{id}", this::getDogById)
-
-                        .POST("/dog", this::insertDog)
-
-                        .PUT("/dog/{id}", this::updateDog)
-
-                        .DELETE("/dog/{id}", this::deleteDog)
-
-                        .GET("/dog/empty", this::emptyDog)
-
-                        .build();
+        return RouterFunctions
+                .route(GET("/dog").and(accept(MediaType.APPLICATION_JSON)), this::getAllDogs)
+                .andRoute(GET("/dog/{id}").and(accept(MediaType.APPLICATION_JSON)), this::getDogById)
+                .andRoute(POST("/dog/save").and(accept(MediaType.APPLICATION_JSON)), this::insertDog)
+                .andRoute(PUT("/dog/update/{id}").and(accept(MediaType.APPLICATION_JSON)), this::updateDog)
+                .andRoute(DELETE("/dog/delete/{id}").and(accept(MediaType.APPLICATION_JSON)), this::deleteDog)
+                .andRoute(GET("/dog/empty").and(accept(MediaType.APPLICATION_JSON)), this::emptyDog);
 
     }
 
     Mono<ServerResponse> notFound = ServerResponse.notFound().build();
 
     private Mono<ServerResponse> getAllDogs(ServerRequest request) {
-        return ok().contentType(MediaType.APPLICATION_JSON).body(dogRepository.findAll(), Dog.class);
+        return ok().contentType(MediaType.APPLICATION_JSON).body(dogService.getAll(), Dog.class);
     }
 
     private Mono<ServerResponse> getDogById(ServerRequest request) {
-        return dogRepository.findById(request.pathVariable("id"))
+        return dogService.getById(request.pathVariable("id"))
                 .flatMap(dog -> ok()
                         .contentType(MediaType.APPLICATION_JSON)
                         .bodyValue(dog))
@@ -75,7 +75,7 @@ public class DogRouter {
                 .doOnNext(this::validate)
                 .flatMap(dog -> status(CREATED)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .body(dogRepository.save(dog), Dog.class));
+                        .body(dogService.save(dog), Dog.class));
     }
 
     private Mono<ServerResponse> updateDog(ServerRequest request) {
@@ -83,17 +83,17 @@ public class DogRouter {
                 .doOnNext(this::validate)
                 .flatMap(dog -> ok()
                         .contentType(MediaType.APPLICATION_JSON)
-                        .body(dogRepository.save(dog), Dog.class))
+                        .body(dogService.save(dog), Dog.class))
                 .switchIfEmpty(notFound);
     }
 
     private Mono<ServerResponse> deleteDog(ServerRequest request) {
-        return dogRepository.deleteById(request.pathVariable("id"))
+        return dogService.deleteById(request.pathVariable("id"))
                 .then(noContent().build());
     }
 
     private Mono<ServerResponse> emptyDog(ServerRequest request) {
-        return ok().bodyValue(new Dog());
+        return ok().bodyValue(dogService.empty());
     }
 
     private void validate(Dog dog) {

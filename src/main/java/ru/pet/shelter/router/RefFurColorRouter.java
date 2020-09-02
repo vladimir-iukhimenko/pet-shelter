@@ -10,60 +10,60 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 import org.springframework.web.reactive.function.server.RouterFunction;
+import org.springframework.web.reactive.function.server.RouterFunctions;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import org.springframework.web.server.ServerWebInputException;
 import reactor.core.publisher.Mono;
 import ru.pet.shelter.model.RefFurColor;
-import ru.pet.shelter.repository.RefFurColorRepository;
+import ru.pet.shelter.service.RefFurColorService;
 
 import static org.springframework.http.HttpStatus.CREATED;
-import static org.springframework.web.reactive.function.server.RouterFunctions.route;
+import static org.springframework.web.reactive.function.server.RequestPredicates.*;
+import static org.springframework.web.reactive.function.server.RequestPredicates.accept;
 import static org.springframework.web.reactive.function.server.ServerResponse.*;
 import static org.springframework.web.reactive.function.server.ServerResponse.ok;
 
 @Configuration
 public class RefFurColorRouter {
 
-    private final RefFurColorRepository refFurColorRepository;
+    private final RefFurColorService refFurColorService;
     private final Validator validator;
 
     @Autowired
-    public RefFurColorRouter(RefFurColorRepository refFurColorRepository, Validator validator) {
-        this.refFurColorRepository = refFurColorRepository;
+    public RefFurColorRouter(RefFurColorService refFurColorService, Validator validator) {
+        this.refFurColorService = refFurColorService;
         this.validator = validator;
     }
 
     @Bean
-    @RouterOperations({@RouterOperation(path = "/ref-furColor", beanClass = RefFurColorRepository.class, beanMethod = "findAll"),
-            @RouterOperation(path = "/ref-furColor/{id}", beanClass = RefFurColorRepository.class, beanMethod = "findById")})
+    @RouterOperations({
+            @RouterOperation(path = "/ref-FurColor", beanClass = RefFurColorService.class, beanMethod = "getAll"),
+            @RouterOperation(path = "/ref-FurColor/{id}", beanClass = RefFurColorService.class, beanMethod = "getById"),
+            @RouterOperation(path = "/ref-FurColor/save", beanClass = RefFurColorService.class, beanMethod = "save"),
+            @RouterOperation(path = "/ref-FurColor/update/{id}", beanClass = RefFurColorService.class, beanMethod = "update"),
+            @RouterOperation(path = "/ref-FurColor/delete/{id}", beanClass = RefFurColorService.class, beanMethod = "deleteById"),
+            @RouterOperation(path = "/ref-FurColor/empty", beanClass = RefFurColorService.class, beanMethod = "empty")
+    })
     RouterFunction<ServerResponse> refFurColorRoutes() {
-        return
-                route()
-                        .GET("/ref-furColor", this::getAllRefFurColors)
-
-                        .GET("/ref-furColor/{id}", this::getRefFurColorById)
-
-                        .POST("/ref-furColor", this::insertRefFurColor)
-
-                        .PUT("/ref-furColor/{id}", this::updateRefFurColor)
-
-                        .DELETE("/ref-furColor/{id}", this::deleteRefFurColor)
-
-                        .GET("/ref-furColor/empty", this::emptyRefFurColor)
-
-                        .build();
+        return RouterFunctions
+                .route(GET("/ref-FurColor").and(accept(MediaType.APPLICATION_JSON)), this::getAllRefFurColors)
+                .andRoute(GET("/ref-FurColor/{id}").and(accept(MediaType.APPLICATION_JSON)), this::getRefFurColorById)
+                .andRoute(POST("/ref-FurColor/save").and(accept(MediaType.APPLICATION_JSON)), this::insertRefFurColor)
+                .andRoute(PUT("/ref-FurColor/update/{id}").and(accept(MediaType.APPLICATION_JSON)), this::updateRefFurColor)
+                .andRoute(DELETE("/ref-FurColor/delete/{id}").and(accept(MediaType.APPLICATION_JSON)), this::deleteRefFurColor)
+                .andRoute(GET("/ref-FurColor/empty").and(accept(MediaType.APPLICATION_JSON)), this::emptyRefFurColor);
 
     }
 
     Mono<ServerResponse> notFound = ServerResponse.notFound().build();
 
     private Mono<ServerResponse> getAllRefFurColors(ServerRequest request) {
-        return ok().contentType(MediaType.APPLICATION_JSON).body(refFurColorRepository.findAll(), RefFurColor.class);
+        return ok().contentType(MediaType.APPLICATION_JSON).body(refFurColorService.getAll(), RefFurColor.class);
     }
 
     private Mono<ServerResponse> getRefFurColorById(ServerRequest request) {
-        return refFurColorRepository.findById(request.pathVariable("id"))
+        return refFurColorService.getById(request.pathVariable("id"))
                 .flatMap(refFurColor -> ok()
                         .contentType(MediaType.APPLICATION_JSON)
                         .bodyValue(refFurColor))
@@ -75,7 +75,7 @@ public class RefFurColorRouter {
                 .doOnNext(this::validate)
                 .flatMap(refFurColor -> status(CREATED)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .body(refFurColorRepository.save(refFurColor), RefFurColor.class));
+                        .body(refFurColorService.save(refFurColor), RefFurColor.class));
     }
 
     private Mono<ServerResponse> updateRefFurColor(ServerRequest request) {
@@ -83,17 +83,17 @@ public class RefFurColorRouter {
                 .doOnNext(this::validate)
                 .flatMap(refFurColor -> ok()
                         .contentType(MediaType.APPLICATION_JSON)
-                        .body(refFurColorRepository.save(refFurColor), RefFurColor.class))
+                        .body(refFurColorService.save(refFurColor), RefFurColor.class))
                 .switchIfEmpty(notFound);
     }
 
     private Mono<ServerResponse> deleteRefFurColor(ServerRequest request) {
-        return refFurColorRepository.deleteById(request.pathVariable("id"))
+        return refFurColorService.deleteById(request.pathVariable("id"))
                 .then(noContent().build());
     }
 
     private Mono<ServerResponse> emptyRefFurColor(ServerRequest request) {
-        return ok().bodyValue(new RefFurColor());
+        return ok().bodyValue(refFurColorService.empty());
     }
 
     private void validate(RefFurColor refFurColor) {
