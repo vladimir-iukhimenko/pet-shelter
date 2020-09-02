@@ -7,8 +7,6 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import ru.pet.shelter.model.Cat;
 import ru.pet.shelter.repository.CatRepository;
 
-import static org.mockito.BDDMockito.given;
-
 @SpringBootTest
 public class CatRouterTests {
 

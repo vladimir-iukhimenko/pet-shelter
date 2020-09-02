@@ -10,60 +10,60 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 import org.springframework.web.reactive.function.server.RouterFunction;
+import org.springframework.web.reactive.function.server.RouterFunctions;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import org.springframework.web.server.ServerWebInputException;
 import reactor.core.publisher.Mono;
 import ru.pet.shelter.model.Photo;
-import ru.pet.shelter.repository.PhotoRepository;
+import ru.pet.shelter.service.PhotoService;
 
 import static org.springframework.http.HttpStatus.CREATED;
-import static org.springframework.web.reactive.function.server.RouterFunctions.route;
+import static org.springframework.web.reactive.function.server.RequestPredicates.*;
+import static org.springframework.web.reactive.function.server.RequestPredicates.accept;
 import static org.springframework.web.reactive.function.server.ServerResponse.*;
 import static org.springframework.web.reactive.function.server.ServerResponse.ok;
 
 @Configuration
 public class PhotoRouter {
 
-    private final PhotoRepository photoRepository;
+    private final PhotoService photoService;
     private final Validator validator;
 
     @Autowired
-    public PhotoRouter(PhotoRepository photoRepository, Validator validator) {
-        this.photoRepository = photoRepository;
+    public PhotoRouter(PhotoService photoService, Validator validator) {
+        this.photoService = photoService;
         this.validator = validator;
     }
 
     @Bean
-    @RouterOperations({@RouterOperation(path = "/photo", beanClass = PhotoRepository.class, beanMethod = "findAll"),
-            @RouterOperation(path = "/photo/{id}", beanClass = PhotoRepository.class, beanMethod = "findById")})
+    @RouterOperations({
+            @RouterOperation(path = "/photo", beanClass = PhotoService.class, beanMethod = "getAll"),
+            @RouterOperation(path = "/photo/{id}", beanClass = PhotoService.class, beanMethod = "getById"),
+            @RouterOperation(path = "/photo/save", beanClass = PhotoService.class, beanMethod = "save"),
+            @RouterOperation(path = "/photo/update/{id}", beanClass = PhotoService.class, beanMethod = "update"),
+            @RouterOperation(path = "/photo/delete/{id}", beanClass = PhotoService.class, beanMethod = "deleteById"),
+            @RouterOperation(path = "/photo/empty", beanClass = PhotoService.class, beanMethod = "empty")
+    })
     RouterFunction<ServerResponse> photoRoutes() {
-        return
-                route()
-                        .GET("/photo", this::getAllPhotos)
-
-                        .GET("/photo/{id}", this::getPhotoById)
-
-                        .POST("/photo", this::insertPhoto)
-
-                        .PUT("/photo/{id}", this::updatePhoto)
-
-                        .DELETE("/photo/{id}", this::deletePhoto)
-
-                        .GET("/photo/empty", this::emptyPhoto)
-
-                        .build();
+        return RouterFunctions
+                .route(GET("/photo").and(accept(MediaType.APPLICATION_JSON)), this::getAllPhotos)
+                .andRoute(GET("/photo/{id}").and(accept(MediaType.APPLICATION_JSON)), this::getPhotoById)
+                .andRoute(POST("/photo/save").and(accept(MediaType.APPLICATION_JSON)), this::insertPhoto)
+                .andRoute(PUT("/photo/update/{id}").and(accept(MediaType.APPLICATION_JSON)), this::updatePhoto)
+                .andRoute(DELETE("/photo/delete/{id}").and(accept(MediaType.APPLICATION_JSON)), this::deletePhoto)
+                .andRoute(GET("/photo/empty").and(accept(MediaType.APPLICATION_JSON)), this::emptyPhoto);
 
     }
 
     Mono<ServerResponse> notFound = ServerResponse.notFound().build();
 
     private Mono<ServerResponse> getAllPhotos(ServerRequest request) {
-        return ok().contentType(MediaType.APPLICATION_JSON).body(photoRepository.findAll(), Photo.class);
+        return ok().contentType(MediaType.APPLICATION_JSON).body(photoService.getAll(), Photo.class);
     }
 
     private Mono<ServerResponse> getPhotoById(ServerRequest request) {
-        return photoRepository.findById(request.pathVariable("id"))
+        return photoService.getById(request.pathVariable("id"))
                 .flatMap(photo -> ok()
                         .contentType(MediaType.APPLICATION_JSON)
                         .bodyValue(photo))
@@ -75,7 +75,7 @@ public class PhotoRouter {
                 .doOnNext(this::validate)
                 .flatMap(photo -> status(CREATED)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .body(photoRepository.save(photo), Photo.class));
+                        .body(photoService.save(photo), Photo.class));
     }
 
     private Mono<ServerResponse> updatePhoto(ServerRequest request) {
@@ -83,17 +83,17 @@ public class PhotoRouter {
                 .doOnNext(this::validate)
                 .flatMap(photo -> ok()
                         .contentType(MediaType.APPLICATION_JSON)
-                        .body(photoRepository.save(photo), Photo.class))
+                        .body(photoService.save(photo), Photo.class))
                 .switchIfEmpty(notFound);
     }
 
     private Mono<ServerResponse> deletePhoto(ServerRequest request) {
-        return photoRepository.deleteById(request.pathVariable("id"))
+        return photoService.deleteById(request.pathVariable("id"))
                 .then(noContent().build());
     }
 
     private Mono<ServerResponse> emptyPhoto(ServerRequest request) {
-        return ok().bodyValue(new Photo());
+        return ok().bodyValue(photoService.empty());
     }
 
     private void validate(Photo photo) {
