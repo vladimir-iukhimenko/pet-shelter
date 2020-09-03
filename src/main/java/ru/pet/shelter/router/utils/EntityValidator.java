@@ -27,7 +27,7 @@ public class EntityValidator<T> {
     }
 
     private void validateInternal() {
-        Errors errors = new BeanPropertyBindingResult(entity, entity.getClass().toString());
+        Errors errors = new BeanPropertyBindingResult(entity, entity.getClass().getSimpleName());
         validator.validate(entity, errors);
         if (errors.hasErrors()) {
             throw new ServerWebInputException(errors.toString());
