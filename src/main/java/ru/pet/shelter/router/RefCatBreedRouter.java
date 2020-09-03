@@ -6,21 +6,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
-import org.springframework.validation.BeanPropertyBindingResult;
-import org.springframework.validation.Errors;
-import org.springframework.validation.Validator;
 import org.springframework.web.reactive.function.server.RouterFunction;
-import org.springframework.web.reactive.function.server.RouterFunctions;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
-import org.springframework.web.server.ServerWebInputException;
 import reactor.core.publisher.Mono;
 import ru.pet.shelter.model.RefCatBreed;
+import ru.pet.shelter.router.utils.EntityValidator;
 import ru.pet.shelter.service.RefCatBreedService;
 
 import static org.springframework.http.HttpStatus.CREATED;
-import static org.springframework.web.reactive.function.server.RequestPredicates.*;
-import static org.springframework.web.reactive.function.server.RequestPredicates.accept;
+import static org.springframework.web.reactive.function.server.RouterFunctions.route;
 import static org.springframework.web.reactive.function.server.ServerResponse.*;
 import static org.springframework.web.reactive.function.server.ServerResponse.ok;
 
@@ -28,31 +23,39 @@ import static org.springframework.web.reactive.function.server.ServerResponse.ok
 public class RefCatBreedRouter {
 
     private final RefCatBreedService refCatBreedService;
-    private final Validator validator;
+    private final EntityValidator<RefCatBreed> validator;
 
     @Autowired
-    public RefCatBreedRouter(RefCatBreedService refCatBreedService, Validator validator) {
+    public RefCatBreedRouter(RefCatBreedService refCatBreedService, EntityValidator<RefCatBreed> validator) {
         this.refCatBreedService = refCatBreedService;
         this.validator = validator;
     }
 
     @Bean
     @RouterOperations({
-            @RouterOperation(path = "/ref-CatBreed", beanClass = RefCatBreedService.class, beanMethod = "getAll"),
-            @RouterOperation(path = "/ref-CatBreed/{id}", beanClass = RefCatBreedService.class, beanMethod = "getById"),
-            @RouterOperation(path = "/ref-CatBreed/save", beanClass = RefCatBreedService.class, beanMethod = "save"),
-            @RouterOperation(path = "/ref-CatBreed/update/{id}", beanClass = RefCatBreedService.class, beanMethod = "update"),
-            @RouterOperation(path = "/ref-CatBreed/delete/{id}", beanClass = RefCatBreedService.class, beanMethod = "deleteById"),
-            @RouterOperation(path = "/ref-CatBreed/empty", beanClass = RefCatBreedService.class, beanMethod = "empty")
+            @RouterOperation(path = "/cat-breed", beanClass = RefCatBreedService.class, beanMethod = "getAll"),
+            @RouterOperation(path = "/cat-breed/{id}", beanClass = RefCatBreedService.class, beanMethod = "getById"),
+            @RouterOperation(path = "/cat-breed/save", beanClass = RefCatBreedService.class, beanMethod = "save"),
+            @RouterOperation(path = "/cat-breed/update/{id}", beanClass = RefCatBreedService.class, beanMethod = "update"),
+            @RouterOperation(path = "/cat-breed/delete/{id}", beanClass = RefCatBreedService.class, beanMethod = "deleteById"),
+            @RouterOperation(path = "/cat-breed/empty", beanClass = RefCatBreedService.class, beanMethod = "empty")
     })
     RouterFunction<ServerResponse> refCatBreedRoutes() {
-        return RouterFunctions
-                .route(GET("/ref-CatBreed").and(accept(MediaType.APPLICATION_JSON)), this::getAllRefCatBreeds)
-                .andRoute(GET("/ref-CatBreed/{id}").and(accept(MediaType.APPLICATION_JSON)), this::getRefCatBreedById)
-                .andRoute(POST("/ref-CatBreed/save").and(accept(MediaType.APPLICATION_JSON)), this::insertRefCatBreed)
-                .andRoute(PUT("/ref-CatBreed/update/{id}").and(accept(MediaType.APPLICATION_JSON)), this::updateRefCatBreed)
-                .andRoute(DELETE("/ref-CatBreed/delete/{id}").and(accept(MediaType.APPLICATION_JSON)), this::deleteRefCatBreed)
-                .andRoute(GET("/ref-CatBreed/empty").and(accept(MediaType.APPLICATION_JSON)), this::emptyRefCatBreed);
+        return
+                route()
+                        .GET("/cat-breed", this::getAllRefCatBreeds)
+
+                        .GET("/cat-breed/{id}", this::getRefCatBreedById)
+
+                        .POST("/cat-breed/save", this::insertRefCatBreed)
+
+                        .PUT("/cat-breed/update/{id}", this::updateRefCatBreed)
+
+                        .DELETE("/cat-breed/delete/{id}", this::deleteRefCatBreed)
+
+                        .GET("/cat-breed/empty", this::emptyRefCatBreed)
+
+                        .build();
     }
 
     Mono<ServerResponse> notFound = ServerResponse.notFound().build();
@@ -71,7 +74,7 @@ public class RefCatBreedRouter {
 
     private Mono<ServerResponse> insertRefCatBreed(ServerRequest request) {
         return request.bodyToMono(RefCatBreed.class)
-                .doOnNext(this::validate)
+                .doOnNext(validator::validate)
                 .flatMap(refCatBreed -> status(CREATED)
                         .contentType(MediaType.APPLICATION_JSON)
                         .body(refCatBreedService.save(refCatBreed), RefCatBreed.class));
@@ -79,7 +82,7 @@ public class RefCatBreedRouter {
 
     private Mono<ServerResponse> updateRefCatBreed(ServerRequest request) {
         return request.bodyToMono(RefCatBreed.class)
-                .doOnNext(this::validate)
+                .doOnNext(validator::validate)
                 .flatMap(refCatBreed -> ok()
                         .contentType(MediaType.APPLICATION_JSON)
                         .body(refCatBreedService.save(refCatBreed), RefCatBreed.class))
@@ -93,13 +96,5 @@ public class RefCatBreedRouter {
 
     private Mono<ServerResponse> emptyRefCatBreed(ServerRequest request) {
         return ok().bodyValue(refCatBreedService.empty());
-    }
-
-    private void validate(RefCatBreed refCatBreed) {
-        Errors errors = new BeanPropertyBindingResult(refCatBreed, "refСatBreed");
-        validator.validate(refCatBreed, errors);
-        if (errors.hasErrors()) {
-            throw new ServerWebInputException(errors.toString());
-        }
     }
 }

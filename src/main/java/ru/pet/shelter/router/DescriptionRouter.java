@@ -6,15 +6,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
-import org.springframework.validation.BeanPropertyBindingResult;
-import org.springframework.validation.Errors;
-import org.springframework.validation.Validator;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
-import org.springframework.web.server.ServerWebInputException;
 import reactor.core.publisher.Mono;
 import ru.pet.shelter.model.Description;
+import ru.pet.shelter.router.utils.EntityValidator;
 import ru.pet.shelter.service.DescriptionService;
 
 import static org.springframework.http.HttpStatus.CREATED;
@@ -26,10 +23,10 @@ import static org.springframework.web.reactive.function.server.ServerResponse.ok
 public class DescriptionRouter {
 
     private final DescriptionService descriptionService;
-    private final Validator validator;
+    private final EntityValidator<Description> validator;
 
     @Autowired
-    public DescriptionRouter(DescriptionService descriptionService, Validator validator) {
+    public DescriptionRouter(DescriptionService descriptionService, EntityValidator<Description> validator) {
         this.descriptionService = descriptionService;
         this.validator = validator;
     }
@@ -78,7 +75,7 @@ public class DescriptionRouter {
 
     private Mono<ServerResponse> insertDescription(ServerRequest request) {
         return request.bodyToMono(Description.class)
-                .doOnNext(this::validate)
+                .doOnNext(validator::validate)
                 .flatMap(description -> status(CREATED)
                         .contentType(MediaType.APPLICATION_JSON)
                         .body(descriptionService.save(description), Description.class));
@@ -86,7 +83,7 @@ public class DescriptionRouter {
 
     private Mono<ServerResponse> updateDescription(ServerRequest request) {
         return request.bodyToMono(Description.class)
-                .doOnNext(this::validate)
+                .doOnNext(validator::validate)
                 .flatMap(description -> ok()
                         .contentType(MediaType.APPLICATION_JSON)
                         .body(descriptionService.save(description), Description.class))
@@ -100,13 +97,5 @@ public class DescriptionRouter {
 
     private Mono<ServerResponse> emptyDescription(ServerRequest request) {
         return ok().bodyValue(descriptionService.empty());
-    }
-
-    private void validate(Description description) {
-        Errors errors = new BeanPropertyBindingResult(description, "description");
-        validator.validate(description, errors);
-        if (errors.hasErrors()) {
-            throw new ServerWebInputException(errors.toString());
-        }
     }
 }

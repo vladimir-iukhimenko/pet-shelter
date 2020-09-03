@@ -1,6 +1,6 @@
 package ru.pet.shelter.router;
 
-import static org.springframework.web.reactive.function.server.RequestPredicates.*;
+import static org.springframework.web.reactive.function.server.RouterFunctions.route;
 import static org.springframework.web.reactive.function.server.ServerResponse.*;
 import static org.springframework.http.HttpStatus.*;
 
@@ -10,27 +10,23 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
-import org.springframework.validation.BeanPropertyBindingResult;
-import org.springframework.validation.Errors;
-import org.springframework.validation.Validator;
 import org.springframework.web.reactive.function.server.RouterFunction;
-import org.springframework.web.reactive.function.server.RouterFunctions;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
-import org.springframework.web.server.ServerWebInputException;
 import reactor.core.publisher.Mono;
 import ru.pet.shelter.model.Cat;
+import ru.pet.shelter.router.utils.EntityValidator;
 import ru.pet.shelter.service.CatService;
 
 
 @Configuration
 public class CatRouter {
 
-    private final Validator validator;
+    private final EntityValidator<Cat> validator;
     private final CatService catService;
 
     @Autowired
-    public CatRouter(CatService catService, Validator validator) {
+    public CatRouter(CatService catService, EntityValidator<Cat> validator) {
         this.validator = validator;
         this.catService = catService;
     }
@@ -45,13 +41,21 @@ public class CatRouter {
             @RouterOperation(path = "/cat/empty", beanClass = CatService.class, beanMethod = "empty")
     })
     RouterFunction<ServerResponse> catRoutes() {
-        return RouterFunctions
-                .route(GET("/cat").and(accept(MediaType.APPLICATION_JSON)), this::getAllCats)
-                .andRoute(GET("/cat/{id}").and(accept(MediaType.APPLICATION_JSON)), this::getCatById)
-                .andRoute(POST("/cat/save").and(accept(MediaType.APPLICATION_JSON)), this::insertCat)
-                .andRoute(PUT("/cat/update/{id}").and(accept(MediaType.APPLICATION_JSON)), this::updateCat)
-                .andRoute(DELETE("/cat/delete/{id}").and(accept(MediaType.APPLICATION_JSON)), this::deleteCat)
-                .andRoute(GET("/cat/empty").and(accept(MediaType.APPLICATION_JSON)), this::emptyCat);
+        return
+                route()
+                        .GET("/cat", this::getAllCats)
+
+                        .GET("/cat/{id}", this::getCatById)
+
+                        .POST("/cat/save", this::insertCat)
+
+                        .PUT("/cat/update/{id}", this::updateCat)
+
+                        .DELETE("/cat/delete/{id}", this::deleteCat)
+
+                        .GET("/cat/empty", this::emptyCat)
+
+                        .build();
     }
 
     Mono<ServerResponse> notFound = ServerResponse.notFound().build();
@@ -71,7 +75,7 @@ public class CatRouter {
 
     private Mono<ServerResponse> insertCat(ServerRequest request) {
         return request.bodyToMono(Cat.class)
-                .doOnNext(this::validate)
+                .doOnNext(validator::validate)
                 .flatMap(cat -> status(CREATED)
                         .contentType(MediaType.APPLICATION_JSON)
                         .body(catService.save(cat), Cat.class));
@@ -80,7 +84,7 @@ public class CatRouter {
 
     private Mono<ServerResponse> updateCat(ServerRequest request) {
         return request.bodyToMono(Cat.class)
-                .doOnNext(this::validate)
+                .doOnNext(validator::validate)
                 .flatMap(cat -> ok()
                         .contentType(MediaType.APPLICATION_JSON)
                         .body(catService.save(cat), Cat.class))
@@ -96,11 +100,4 @@ public class CatRouter {
         return ok().bodyValue(catService.empty());
     }
 
-    private void validate(Cat cat) {
-        Errors errors = new BeanPropertyBindingResult(cat, "cat");
-        validator.validate(cat, errors);
-        if (errors.hasErrors()) {
-            throw new ServerWebInputException(errors.toString());
-        }
-    }
 }

@@ -6,21 +6,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
-import org.springframework.validation.BeanPropertyBindingResult;
-import org.springframework.validation.Errors;
-import org.springframework.validation.Validator;
 import org.springframework.web.reactive.function.server.RouterFunction;
-import org.springframework.web.reactive.function.server.RouterFunctions;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
-import org.springframework.web.server.ServerWebInputException;
 import reactor.core.publisher.Mono;
 import ru.pet.shelter.model.Photo;
+import ru.pet.shelter.router.utils.EntityValidator;
 import ru.pet.shelter.service.PhotoService;
 
 import static org.springframework.http.HttpStatus.CREATED;
-import static org.springframework.web.reactive.function.server.RequestPredicates.*;
-import static org.springframework.web.reactive.function.server.RequestPredicates.accept;
+import static org.springframework.web.reactive.function.server.RouterFunctions.route;
 import static org.springframework.web.reactive.function.server.ServerResponse.*;
 import static org.springframework.web.reactive.function.server.ServerResponse.ok;
 
@@ -28,10 +23,10 @@ import static org.springframework.web.reactive.function.server.ServerResponse.ok
 public class PhotoRouter {
 
     private final PhotoService photoService;
-    private final Validator validator;
+    private final EntityValidator<Photo> validator;
 
     @Autowired
-    public PhotoRouter(PhotoService photoService, Validator validator) {
+    public PhotoRouter(PhotoService photoService, EntityValidator<Photo> validator) {
         this.photoService = photoService;
         this.validator = validator;
     }
@@ -46,14 +41,21 @@ public class PhotoRouter {
             @RouterOperation(path = "/photo/empty", beanClass = PhotoService.class, beanMethod = "empty")
     })
     RouterFunction<ServerResponse> photoRoutes() {
-        return RouterFunctions
-                .route(GET("/photo").and(accept(MediaType.APPLICATION_JSON)), this::getAllPhotos)
-                .andRoute(GET("/photo/{id}").and(accept(MediaType.APPLICATION_JSON)), this::getPhotoById)
-                .andRoute(POST("/photo/save").and(accept(MediaType.APPLICATION_JSON)), this::insertPhoto)
-                .andRoute(PUT("/photo/update/{id}").and(accept(MediaType.APPLICATION_JSON)), this::updatePhoto)
-                .andRoute(DELETE("/photo/delete/{id}").and(accept(MediaType.APPLICATION_JSON)), this::deletePhoto)
-                .andRoute(GET("/photo/empty").and(accept(MediaType.APPLICATION_JSON)), this::emptyPhoto);
+        return
+                route()
+                        .GET("/photo", this::getAllPhotos)
 
+                        .GET("/photo/{id}", this::getPhotoById)
+
+                        .POST("/photo/save", this::insertPhoto)
+
+                        .PUT("/photo/update/{id}", this::updatePhoto)
+
+                        .DELETE("/photo/delete/{id}", this::deletePhoto)
+
+                        .GET("/photo/empty", this::emptyPhoto)
+
+                        .build();
     }
 
     Mono<ServerResponse> notFound = ServerResponse.notFound().build();
@@ -72,7 +74,7 @@ public class PhotoRouter {
 
     private Mono<ServerResponse> insertPhoto(ServerRequest request) {
         return request.bodyToMono(Photo.class)
-                .doOnNext(this::validate)
+                .doOnNext(validator::validate)
                 .flatMap(photo -> status(CREATED)
                         .contentType(MediaType.APPLICATION_JSON)
                         .body(photoService.save(photo), Photo.class));
@@ -80,7 +82,7 @@ public class PhotoRouter {
 
     private Mono<ServerResponse> updatePhoto(ServerRequest request) {
         return request.bodyToMono(Photo.class)
-                .doOnNext(this::validate)
+                .doOnNext(validator::validate)
                 .flatMap(photo -> ok()
                         .contentType(MediaType.APPLICATION_JSON)
                         .body(photoService.save(photo), Photo.class))
@@ -96,11 +98,4 @@ public class PhotoRouter {
         return ok().bodyValue(photoService.empty());
     }
 
-    private void validate(Photo photo) {
-        Errors errors = new BeanPropertyBindingResult(photo, "photo");
-        validator.validate(photo, errors);
-        if (errors.hasErrors()) {
-            throw new ServerWebInputException(errors.toString());
-        }
-    }
 }

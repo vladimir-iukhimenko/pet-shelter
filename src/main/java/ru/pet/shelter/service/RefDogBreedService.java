@@ -1,6 +1,7 @@
 package ru.pet.shelter.service;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,12 +31,14 @@ public class RefDogBreedService implements GenericService<RefDogBreed> {
 
     @Override
     @Operation(summary = "Возвращает объект по Id")
-    public Mono<RefDogBreed> getById(String id) {
+    public Mono<RefDogBreed> getById(@Parameter(description = "Id объекта") String id) {
         return refDogBreedRepository.findById(id);
     }
 
     @Override
-    @Operation(summary = "Сохраняет объект")
+    @Operation(summary = "Сохраняет объект", responses = {
+            @ApiResponse(responseCode = "201", description = "Объект создан")
+    })
     public Mono<RefDogBreed> save(RefDogBreed entity) {
         return refDogBreedRepository.save(entity);
     }
@@ -48,7 +51,7 @@ public class RefDogBreedService implements GenericService<RefDogBreed> {
 
     @Override
     @Operation(summary = "Удаляет объект")
-    public Mono<Void> deleteById(String id) {
+    public Mono<Void> deleteById(@Parameter(description = "Id объекта") String id) {
         return refDogBreedRepository.deleteById(id);
     }
 
