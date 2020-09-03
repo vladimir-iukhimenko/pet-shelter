@@ -6,21 +6,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
-import org.springframework.validation.BeanPropertyBindingResult;
-import org.springframework.validation.Errors;
-import org.springframework.validation.Validator;
 import org.springframework.web.reactive.function.server.RouterFunction;
-import org.springframework.web.reactive.function.server.RouterFunctions;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
-import org.springframework.web.server.ServerWebInputException;
 import reactor.core.publisher.Mono;
 import ru.pet.shelter.model.Passport;
+import ru.pet.shelter.router.utils.EntityValidator;
 import ru.pet.shelter.service.PassportService;
 
 import static org.springframework.http.HttpStatus.CREATED;
-import static org.springframework.web.reactive.function.server.RequestPredicates.*;
-import static org.springframework.web.reactive.function.server.RequestPredicates.accept;
+import static org.springframework.web.reactive.function.server.RouterFunctions.route;
 import static org.springframework.web.reactive.function.server.ServerResponse.*;
 import static org.springframework.web.reactive.function.server.ServerResponse.ok;
 
@@ -28,10 +23,10 @@ import static org.springframework.web.reactive.function.server.ServerResponse.ok
 public class PassportRouter {
 
     private final PassportService passportService;
-    private final Validator validator;
+    private final EntityValidator<Passport> validator;
 
     @Autowired
-    public PassportRouter(PassportService passportService, Validator validator) {
+    public PassportRouter(PassportService passportService, EntityValidator<Passport> validator) {
         this.passportService = passportService;
         this.validator = validator;
     }
@@ -46,14 +41,21 @@ public class PassportRouter {
             @RouterOperation(path = "/passport/empty", beanClass = PassportService.class, beanMethod = "empty")
     })
     RouterFunction<ServerResponse> passportRoutes() {
-        return RouterFunctions
-                .route(GET("/passport").and(accept(MediaType.APPLICATION_JSON)), this::getAllPassports)
-                .andRoute(GET("/passport/{id}").and(accept(MediaType.APPLICATION_JSON)), this::getPassportById)
-                .andRoute(POST("/passport/save").and(accept(MediaType.APPLICATION_JSON)), this::insertPassport)
-                .andRoute(PUT("/passport/update/{id}").and(accept(MediaType.APPLICATION_JSON)), this::updatePassport)
-                .andRoute(DELETE("/passport/delete/{id}").and(accept(MediaType.APPLICATION_JSON)), this::deletePassport)
-                .andRoute(GET("/passport/empty").and(accept(MediaType.APPLICATION_JSON)), this::emptyPassport);
+        return
+                route()
+                        .GET("/passport", this::getAllPassports)
 
+                        .GET("/passport/{id}", this::getPassportById)
+
+                        .POST("/passport/save", this::insertPassport)
+
+                        .PUT("/passport/update/{id}", this::updatePassport)
+
+                        .DELETE("/passport/delete/{id}", this::deletePassport)
+
+                        .GET("/passport/empty", this::emptyPassport)
+
+                        .build();
     }
 
     Mono<ServerResponse> notFound = ServerResponse.notFound().build();
@@ -72,7 +74,7 @@ public class PassportRouter {
 
     private Mono<ServerResponse> insertPassport(ServerRequest request) {
         return request.bodyToMono(Passport.class)
-                .doOnNext(this::validate)
+                .doOnNext(validator::validate)
                 .flatMap(passport -> status(CREATED)
                         .contentType(MediaType.APPLICATION_JSON)
                         .body(passportService.save(passport), Passport.class));
@@ -80,7 +82,7 @@ public class PassportRouter {
 
     private Mono<ServerResponse> updatePassport(ServerRequest request) {
         return request.bodyToMono(Passport.class)
-                .doOnNext(this::validate)
+                .doOnNext(validator::validate)
                 .flatMap(passport -> ok()
                         .contentType(MediaType.APPLICATION_JSON)
                         .body(passportService.save(passport), Passport.class))
@@ -94,13 +96,5 @@ public class PassportRouter {
 
     private Mono<ServerResponse> emptyPassport(ServerRequest request) {
         return ok().bodyValue(passportService.empty());
-    }
-
-    private void validate(Passport passport) {
-        Errors errors = new BeanPropertyBindingResult(passport, "passport");
-        validator.validate(passport, errors);
-        if (errors.hasErrors()) {
-            throw new ServerWebInputException(errors.toString());
-        }
     }
 }

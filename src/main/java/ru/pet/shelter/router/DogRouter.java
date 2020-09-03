@@ -6,21 +6,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
-import org.springframework.validation.BeanPropertyBindingResult;
-import org.springframework.validation.Errors;
-import org.springframework.validation.Validator;
 import org.springframework.web.reactive.function.server.RouterFunction;
-import org.springframework.web.reactive.function.server.RouterFunctions;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
-import org.springframework.web.server.ServerWebInputException;
 import reactor.core.publisher.Mono;
 import ru.pet.shelter.model.Dog;
+import ru.pet.shelter.router.utils.EntityValidator;
 import ru.pet.shelter.service.DogService;
 
 import static org.springframework.http.HttpStatus.CREATED;
-import static org.springframework.web.reactive.function.server.RequestPredicates.*;
-import static org.springframework.web.reactive.function.server.RequestPredicates.accept;
+import static org.springframework.web.reactive.function.server.RouterFunctions.route;
 import static org.springframework.web.reactive.function.server.ServerResponse.*;
 import static org.springframework.web.reactive.function.server.ServerResponse.ok;
 
@@ -28,10 +23,10 @@ import static org.springframework.web.reactive.function.server.ServerResponse.ok
 public class DogRouter {
 
     private final DogService dogService;
-    private final Validator validator;
+    private final EntityValidator<Dog> validator;
 
     @Autowired
-    public DogRouter(DogService dogService, Validator validator) {
+    public DogRouter(DogService dogService, EntityValidator<Dog> validator) {
         this.dogService = dogService;
         this.validator = validator;
     }
@@ -46,14 +41,21 @@ public class DogRouter {
             @RouterOperation(path = "/dog/empty", beanClass = DogService.class, beanMethod = "empty")
     })
     RouterFunction<ServerResponse> dogRoutes() {
-        return RouterFunctions
-                .route(GET("/dog").and(accept(MediaType.APPLICATION_JSON)), this::getAllDogs)
-                .andRoute(GET("/dog/{id}").and(accept(MediaType.APPLICATION_JSON)), this::getDogById)
-                .andRoute(POST("/dog/save").and(accept(MediaType.APPLICATION_JSON)), this::insertDog)
-                .andRoute(PUT("/dog/update/{id}").and(accept(MediaType.APPLICATION_JSON)), this::updateDog)
-                .andRoute(DELETE("/dog/delete/{id}").and(accept(MediaType.APPLICATION_JSON)), this::deleteDog)
-                .andRoute(GET("/dog/empty").and(accept(MediaType.APPLICATION_JSON)), this::emptyDog);
+        return
+                route()
+                        .GET("/dog", this::getAllDogs)
 
+                        .GET("/dog/{id}", this::getDogById)
+
+                        .POST("/dog/save", this::insertDog)
+
+                        .PUT("/dog/update/{id}", this::updateDog)
+
+                        .DELETE("/dog/delete/{id}", this::deleteDog)
+
+                        .GET("/dog/empty", this::emptyDog)
+
+                        .build();
     }
 
     Mono<ServerResponse> notFound = ServerResponse.notFound().build();
@@ -72,7 +74,7 @@ public class DogRouter {
 
     private Mono<ServerResponse> insertDog(ServerRequest request) {
         return request.bodyToMono(Dog.class)
-                .doOnNext(this::validate)
+                .doOnNext(validator::validate)
                 .flatMap(dog -> status(CREATED)
                         .contentType(MediaType.APPLICATION_JSON)
                         .body(dogService.save(dog), Dog.class));
@@ -80,7 +82,7 @@ public class DogRouter {
 
     private Mono<ServerResponse> updateDog(ServerRequest request) {
         return request.bodyToMono(Dog.class)
-                .doOnNext(this::validate)
+                .doOnNext(validator::validate)
                 .flatMap(dog -> ok()
                         .contentType(MediaType.APPLICATION_JSON)
                         .body(dogService.save(dog), Dog.class))
@@ -96,11 +98,4 @@ public class DogRouter {
         return ok().bodyValue(dogService.empty());
     }
 
-    private void validate(Dog dog) {
-        Errors errors = new BeanPropertyBindingResult(dog, "dog");
-        validator.validate(dog, errors);
-        if (errors.hasErrors()) {
-            throw new ServerWebInputException(errors.toString());
-        }
-    }
 }

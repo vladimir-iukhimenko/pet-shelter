@@ -6,21 +6,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
-import org.springframework.validation.BeanPropertyBindingResult;
-import org.springframework.validation.Errors;
-import org.springframework.validation.Validator;
 import org.springframework.web.reactive.function.server.RouterFunction;
-import org.springframework.web.reactive.function.server.RouterFunctions;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
-import org.springframework.web.server.ServerWebInputException;
 import reactor.core.publisher.Mono;
 import ru.pet.shelter.model.PassportVaccination;
+import ru.pet.shelter.router.utils.EntityValidator;
 import ru.pet.shelter.service.PassportVaccinationService;
 
 import static org.springframework.http.HttpStatus.CREATED;
-import static org.springframework.web.reactive.function.server.RequestPredicates.*;
-import static org.springframework.web.reactive.function.server.RequestPredicates.accept;
+import static org.springframework.web.reactive.function.server.RouterFunctions.route;
 import static org.springframework.web.reactive.function.server.ServerResponse.*;
 import static org.springframework.web.reactive.function.server.ServerResponse.ok;
 
@@ -28,10 +23,10 @@ import static org.springframework.web.reactive.function.server.ServerResponse.ok
 public class PassportVaccinationRouter {
 
     private final PassportVaccinationService passportVaccinationService;
-    private final Validator validator;
+    private final EntityValidator<PassportVaccination> validator;
 
     @Autowired
-    public PassportVaccinationRouter(PassportVaccinationService passportVaccinationService, Validator validator) {
+    public PassportVaccinationRouter(PassportVaccinationService passportVaccinationService, EntityValidator<PassportVaccination> validator) {
         this.passportVaccinationService = passportVaccinationService;
         this.validator = validator;
     }
@@ -46,14 +41,21 @@ public class PassportVaccinationRouter {
             @RouterOperation(path = "/pass-vaccine/empty", beanClass = PassportVaccinationService.class, beanMethod = "empty")
     })
     RouterFunction<ServerResponse> passportVaccinationRoutes() {
-        return RouterFunctions
-                .route(GET("/pass-vaccine").and(accept(MediaType.APPLICATION_JSON)), this::getAllPassportVaccinations)
-                .andRoute(GET("/pass-vaccine/{id}").and(accept(MediaType.APPLICATION_JSON)), this::getPassportVaccinationById)
-                .andRoute(POST("/pass-vaccine/save").and(accept(MediaType.APPLICATION_JSON)), this::insertPassportVaccination)
-                .andRoute(PUT("/pass-vaccine/update/{id}").and(accept(MediaType.APPLICATION_JSON)), this::updatePassportVaccination)
-                .andRoute(DELETE("/pass-vaccine/delete/{id}").and(accept(MediaType.APPLICATION_JSON)), this::deletePassportVaccination)
-                .andRoute(GET("/pass-vaccine/empty").and(accept(MediaType.APPLICATION_JSON)), this::emptyPassportVaccination);
+        return
+                route()
+                        .GET("/pass-vaccine", this::getAllPassportVaccinations)
 
+                        .GET("/pass-vaccine/{id}", this::getPassportVaccinationById)
+
+                        .POST("/pass-vaccine/save", this::insertPassportVaccination)
+
+                        .PUT("/pass-vaccine/update/{id}", this::updatePassportVaccination)
+
+                        .DELETE("/pass-vaccine/delete/{id}", this::deletePassportVaccination)
+
+                        .GET("/pass-vaccine/empty", this::emptyPassportVaccination)
+
+                        .build();
     }
 
     Mono<ServerResponse> notFound = ServerResponse.notFound().build();
@@ -72,7 +74,7 @@ public class PassportVaccinationRouter {
 
     private Mono<ServerResponse> insertPassportVaccination(ServerRequest request) {
         return request.bodyToMono(PassportVaccination.class)
-                .doOnNext(this::validate)
+                .doOnNext(validator::validate)
                 .flatMap(passportVaccination -> status(CREATED)
                         .contentType(MediaType.APPLICATION_JSON)
                         .body(passportVaccinationService.save(passportVaccination), PassportVaccination.class));
@@ -80,7 +82,7 @@ public class PassportVaccinationRouter {
 
     private Mono<ServerResponse> updatePassportVaccination(ServerRequest request) {
         return request.bodyToMono(PassportVaccination.class)
-                .doOnNext(this::validate)
+                .doOnNext(validator::validate)
                 .flatMap(passportVaccination -> ok()
                         .contentType(MediaType.APPLICATION_JSON)
                         .body(passportVaccinationService.save(passportVaccination), PassportVaccination.class))
@@ -94,13 +96,5 @@ public class PassportVaccinationRouter {
 
     private Mono<ServerResponse> emptyPassportVaccination(ServerRequest request) {
         return ok().bodyValue(passportVaccinationService.empty());
-    }
-
-    private void validate(PassportVaccination passportVaccination) {
-        Errors errors = new BeanPropertyBindingResult(passportVaccination, "passportVaccination");
-        validator.validate(passportVaccination, errors);
-        if (errors.hasErrors()) {
-            throw new ServerWebInputException(errors.toString());
-        }
     }
 }

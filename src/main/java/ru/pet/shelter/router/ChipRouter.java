@@ -6,20 +6,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
-import org.springframework.validation.BeanPropertyBindingResult;
-import org.springframework.validation.Errors;
-import org.springframework.validation.Validator;
 import org.springframework.web.reactive.function.server.RouterFunction;
-import org.springframework.web.reactive.function.server.RouterFunctions;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
-import org.springframework.web.server.ServerWebInputException;
 import reactor.core.publisher.Mono;
 import ru.pet.shelter.model.Chip;
+import ru.pet.shelter.router.utils.EntityValidator;
 import ru.pet.shelter.service.ChipService;
 
-import static org.springframework.web.reactive.function.server.RequestPredicates.*;
-import static org.springframework.web.reactive.function.server.RequestPredicates.accept;
+import static org.springframework.web.reactive.function.server.RouterFunctions.route;
 import static org.springframework.web.reactive.function.server.ServerResponse.*;
 import static org.springframework.http.HttpStatus.*;
 
@@ -27,11 +22,11 @@ import static org.springframework.http.HttpStatus.*;
 @Configuration
 public class ChipRouter {
 
-    private final Validator validator;
+    private final EntityValidator<Chip> validator;
     private final ChipService chipService;
 
     @Autowired
-    public ChipRouter(ChipService chipService, Validator validator) {
+    public ChipRouter(ChipService chipService, EntityValidator<Chip> validator) {
         this.validator = validator;
         this.chipService = chipService;
     }
@@ -46,13 +41,21 @@ public class ChipRouter {
             @RouterOperation(path = "/chip/empty", beanClass = ChipService.class, beanMethod = "empty")
     })
     RouterFunction<ServerResponse> chipRoutes() {
-        return RouterFunctions
-                .route(GET("/chip").and(accept(MediaType.APPLICATION_JSON)), this::getAllChips)
-                .andRoute(GET("/chip/{id}").and(accept(MediaType.APPLICATION_JSON)), this::getChipById)
-                .andRoute(POST("/chip/save").and(accept(MediaType.APPLICATION_JSON)), this::insertChip)
-                .andRoute(PUT("/chip/update/{id}").and(accept(MediaType.APPLICATION_JSON)), this::updateChip)
-                .andRoute(DELETE("/chip/delete/{id}").and(accept(MediaType.APPLICATION_JSON)), this::deleteChip)
-                .andRoute(GET("/chip/empty").and(accept(MediaType.APPLICATION_JSON)), this::emptyChip);
+        return
+                route()
+                        .GET("/chip", this::getAllChips)
+
+                        .GET("/chip/{id}", this::getChipById)
+
+                        .POST("/chip/save", this::insertChip)
+
+                        .PUT("/chip/update/{id}", this::updateChip)
+
+                        .DELETE("/chip/delete/{id}", this::deleteChip)
+
+                        .GET("/chip/empty", this::emptyChip)
+
+                        .build();
     }
 
     Mono<ServerResponse> notFound = ServerResponse.notFound().build();
@@ -71,7 +74,7 @@ public class ChipRouter {
 
     private Mono<ServerResponse> insertChip(ServerRequest request) {
         return request.bodyToMono(Chip.class)
-                .doOnNext(this::validate)
+                .doOnNext(validator::validate)
                 .flatMap(chip -> status(CREATED)
                         .contentType(MediaType.APPLICATION_JSON)
                         .body(chipService.save(chip), Chip.class));
@@ -79,7 +82,7 @@ public class ChipRouter {
 
     private Mono<ServerResponse> updateChip(ServerRequest request) {
         return request.bodyToMono(Chip.class)
-                .doOnNext(this::validate)
+                .doOnNext(validator::validate)
                 .flatMap(chip -> ok()
                         .contentType(MediaType.APPLICATION_JSON)
                         .body(chipService.save(chip), Chip.class))
@@ -95,11 +98,4 @@ public class ChipRouter {
         return ok().bodyValue(chipService.empty());
     }
 
-    private void validate(Chip chip) {
-        Errors errors = new BeanPropertyBindingResult(chip, "chip");
-        validator.validate(chip, errors);
-        if (errors.hasErrors()) {
-            throw new ServerWebInputException(errors.toString());
-        }
-    }
 }
