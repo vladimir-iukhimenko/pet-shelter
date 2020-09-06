@@ -1,6 +1,7 @@
 package ru.pet.shelter.model;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
@@ -12,6 +13,7 @@ import javax.validation.constraints.NotNull;
 @Document(collection = "ref_dog_breed")
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class RefDogBreed {
 
     @Id

@@ -10,15 +10,16 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import javax.validation.constraints.NotNull;
 
 @Data
-@Document(collection = "ref_fur_color")
+@Document(collection = "ref_city")
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class RefFurColor {
+public class RefCity {
 
     @Id
-    private String furColorId;
+    private String id;
     @NotNull
-    private String furColorName;
-
+    private String region;
+    @NotNull
+    private String city;
 }

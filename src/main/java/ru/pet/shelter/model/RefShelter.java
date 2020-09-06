@@ -1,6 +1,7 @@
 package ru.pet.shelter.model;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
@@ -13,6 +14,7 @@ import javax.validation.constraints.NotNull;
 @Document(collection = "ref_shelter")
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class RefShelter {
 
     @Id
@@ -21,6 +23,5 @@ public class RefShelter {
     @Max(value = 32)
     private String type;
     @NotNull
-    @Max(value = 32)
-    private String city;
+    private RefCity city;
 }

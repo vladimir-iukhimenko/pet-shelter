@@ -1,6 +1,7 @@
 package ru.pet.shelter.model;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
@@ -13,6 +14,7 @@ import java.time.LocalDate;
 @Document(collection = "chip")
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class Chip {
 
     @Id
