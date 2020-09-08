@@ -58,6 +58,6 @@ public class PassportService implements GenericService<Passport> {
     @Override
     @Operation(summary = "Возвращает пустой объект")
     public Mono<Passport> empty() {
-        return Mono.just(new Passport());
+        return Mono.just(Passport.builder().build());
     }
 }

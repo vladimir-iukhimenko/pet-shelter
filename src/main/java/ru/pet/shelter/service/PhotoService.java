@@ -58,6 +58,6 @@ public class PhotoService implements GenericService<Photo> {
     @Override
     @Operation(summary = "Возвращает пустой объект")
     public Mono<Photo> empty() {
-        return Mono.just(new Photo());
+        return Mono.just(Photo.builder().build());
     }
 }

@@ -1,8 +1,11 @@
 package ru.pet.shelter.model;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
+import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import ru.pet.shelter.model.helper.Sex;
@@ -12,21 +15,18 @@ import java.time.LocalDate;
 import java.util.Set;
 
 @Data
-@Document(collection = "cat")
-@AllArgsConstructor
-@NoArgsConstructor
-public class Cat extends Pet{
+@Document(collection = "pet")
+@SuperBuilder
+public class Cat extends Pet {
 
     @Id
-    private String catId;
+    private ObjectId id;
     private Integer length;
     private Integer weight;
     @NotNull
-    private RefCatBreed breedByBreedId;
-    private Passport passportByPassportId;
-    private RefFur furByRefFurId;
-    private RefFurColor furColorByRefFurColorId;
+    private String breed;
+    private Passport passport;
     //private Integer curatorByCuratorId; todo:user entity
-    private Chip chipByChipid;
+    private Chip chip;
     private Set<Description> description;
 }

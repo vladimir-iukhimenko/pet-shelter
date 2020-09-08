@@ -58,6 +58,6 @@ public class DogService implements GenericService<Dog> {
     @Override
     @Operation(summary = "Возвращает пустой объект")
     public Mono<Dog> empty() {
-        return Mono.just(new Dog());
+        return Mono.just(Dog.builder().build());
     }
 }

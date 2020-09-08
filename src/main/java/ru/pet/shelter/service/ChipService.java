@@ -58,6 +58,6 @@ public class ChipService implements GenericService<Chip> {
     @Override
     @Operation(summary = "Возвращает пустой объект")
     public Mono<Chip> empty() {
-        return Mono.just(new Chip());
+        return Mono.just(Chip.builder().build());
     }
 }

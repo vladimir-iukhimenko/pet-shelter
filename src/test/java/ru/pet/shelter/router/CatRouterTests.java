@@ -19,7 +19,6 @@ public class CatRouterTests {
     public void catGetterTest() {
         WebTestClient client = WebTestClient.bindToRouterFunction(catRouter.catRoutes()).build();
 
-        Cat cat = new Cat();
 
 
     }

@@ -10,7 +10,7 @@ import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
-import ru.pet.shelter.model.RefShelter;
+import ru.pet.shelter.model.Shelter;
 import ru.pet.shelter.router.utils.EntityValidator;
 import ru.pet.shelter.service.RefShelterService;
 
@@ -23,10 +23,10 @@ import static org.springframework.web.reactive.function.server.ServerResponse.ok
 public class RefShelterRouter {
 
     private final RefShelterService refShelterService;
-    private final EntityValidator<RefShelter> validator;
+    private final EntityValidator<Shelter> validator;
 
     @Autowired
-    public RefShelterRouter(RefShelterService refShelterService, EntityValidator<RefShelter> validator) {
+    public RefShelterRouter(RefShelterService refShelterService, EntityValidator<Shelter> validator) {
         this.refShelterService = refShelterService;
         this.validator = validator;
     }
@@ -61,7 +61,7 @@ public class RefShelterRouter {
     Mono<ServerResponse> notFound = ServerResponse.notFound().build();
 
     private Mono<ServerResponse> getAllRefShelters(ServerRequest request) {
-        return ok().contentType(MediaType.APPLICATION_JSON).body(refShelterService.getAll(), RefShelter.class);
+        return ok().contentType(MediaType.APPLICATION_JSON).body(refShelterService.getAll(), Shelter.class);
     }
 
     private Mono<ServerResponse> getRefShelterById(ServerRequest request) {
@@ -73,19 +73,19 @@ public class RefShelterRouter {
     }
 
     private Mono<ServerResponse> insertRefShelter(ServerRequest request) {
-        return request.bodyToMono(RefShelter.class)
+        return request.bodyToMono(Shelter.class)
                 .doOnNext(validator::validate)
                 .flatMap(refShelter -> status(CREATED)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .body(refShelterService.save(refShelter), RefShelter.class));
+                        .body(refShelterService.save(refShelter), Shelter.class));
     }
 
     private Mono<ServerResponse> updateRefShelter(ServerRequest request) {
-        return request.bodyToMono(RefShelter.class)
+        return request.bodyToMono(Shelter.class)
                 .doOnNext(validator::validate)
                 .flatMap(refShelter -> ok()
                         .contentType(MediaType.APPLICATION_JSON)
-                        .body(refShelterService.save(refShelter), RefShelter.class))
+                        .body(refShelterService.save(refShelter), Shelter.class))
                 .switchIfEmpty(notFound);
     }
 

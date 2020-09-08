@@ -1,21 +1,18 @@
 package ru.pet.shelter.model;
 
-import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.validation.constraints.NotNull;
 
 @Data
-@Document(collection = "photo")
-@AllArgsConstructor
-@NoArgsConstructor
+@Builder
 public class Photo {
 
     @Id
-    private String photoId;
+    private ObjectId id;
     @NotNull
     private Pet petByPetId;
     @NotNull

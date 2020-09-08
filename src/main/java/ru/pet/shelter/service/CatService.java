@@ -59,6 +59,6 @@ public class CatService implements GenericService<Cat>{
     @Override
     @Operation(summary = "Возвращает пустой объект")
     public Mono<Cat> empty() {
-        return Mono.just(new Cat());
+        return Mono.just(Cat.builder().build());
     }
 }

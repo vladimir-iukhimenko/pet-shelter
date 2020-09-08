@@ -58,6 +58,6 @@ public class RequestService implements GenericService<Request> {
     @Override
     @Operation(summary = "Возвращает пустой объект")
     public Mono<Request> empty() {
-        return Mono.just(new Request());
+        return Mono.just(Request.builder().build());
     }
 }

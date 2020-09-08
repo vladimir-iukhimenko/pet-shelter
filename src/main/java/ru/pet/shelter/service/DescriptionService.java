@@ -58,6 +58,6 @@ public class DescriptionService implements GenericService<Description> {
     @Override
     @Operation(summary = "Возвращает пустой объект")
     public Mono<Description> empty() {
-        return Mono.just(new Description());
+        return Mono.just(Description.builder().build());
     }
 }

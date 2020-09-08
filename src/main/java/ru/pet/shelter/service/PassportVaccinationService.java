@@ -58,6 +58,6 @@ public class PassportVaccinationService implements GenericService<PassportVaccin
     @Override
     @Operation(summary = "Возвращает пустой объект")
     public Mono<PassportVaccination> empty() {
-        return Mono.just(new PassportVaccination());
+        return Mono.just(PassportVaccination.builder().build());
     }
 }

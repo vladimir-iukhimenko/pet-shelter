@@ -1,8 +1,8 @@
 package ru.pet.shelter.model;
 
-import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -11,12 +11,11 @@ import java.time.LocalDate;
 
 @Data
 @Document(collection = "request")
-@AllArgsConstructor
-@NoArgsConstructor
+@Builder
 public class Request {
 
     @Id
-    private String requestId;
+    private ObjectId id;
     @NotNull
     private LocalDate requestDate;
     @NotNull

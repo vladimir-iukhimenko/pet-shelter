@@ -8,12 +8,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import ru.pet.shelter.model.RefShelter;
+import ru.pet.shelter.model.Shelter;
 import ru.pet.shelter.repository.RefShelterRepository;
 
 @Service
 @Tag(name = "Ref Shelter")
-public class RefShelterService implements GenericService<RefShelter> {
+public class RefShelterService implements GenericService<Shelter> {
     private final RefShelterRepository refShelterRepository;
 
     @Autowired
@@ -25,13 +25,13 @@ public class RefShelterService implements GenericService<RefShelter> {
     @Operation(summary = "Возвращает все сущности", responses = {
             @ApiResponse(responseCode = "200", description = "Успешная операция")
     })
-    public Flux<RefShelter> getAll() {
+    public Flux<Shelter> getAll() {
         return refShelterRepository.findAll();
     }
 
     @Override
     @Operation(summary = "Возвращает объект по Id")
-    public Mono<RefShelter> getById(@Parameter(description = "Id объекта") String id) {
+    public Mono<Shelter> getById(@Parameter(description = "Id объекта") String id) {
         return refShelterRepository.findById(id);
     }
 
@@ -39,13 +39,13 @@ public class RefShelterService implements GenericService<RefShelter> {
     @Operation(summary = "Сохраняет объект", responses = {
             @ApiResponse(responseCode = "201", description = "Объект создан")
     })
-    public Mono<RefShelter> save(RefShelter entity) {
+    public Mono<Shelter> save(Shelter entity) {
         return refShelterRepository.save(entity);
     }
 
     @Override
     @Operation(summary = "Обновляет объект")
-    public Mono<RefShelter> update(RefShelter entity) {
+    public Mono<Shelter> update(Shelter entity) {
         return refShelterRepository.save(entity);
     }
 
@@ -57,7 +57,7 @@ public class RefShelterService implements GenericService<RefShelter> {
 
     @Override
     @Operation(summary = "Возвращает пустой объект")
-    public Mono<RefShelter> empty() {
-        return Mono.just(new RefShelter());
+    public Mono<Shelter> empty() {
+        return Mono.just(Shelter.builder().build());
     }
 }

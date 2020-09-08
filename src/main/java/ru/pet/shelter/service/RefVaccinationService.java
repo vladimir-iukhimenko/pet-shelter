@@ -58,6 +58,6 @@ public class RefVaccinationService implements GenericService<RefVaccination> {
     @Override
     @Operation(summary = "Возвращает пустой объект")
     public Mono<RefVaccination> empty() {
-        return Mono.just(new RefVaccination());
+        return Mono.just(RefVaccination.builder().build());
     }
 }
