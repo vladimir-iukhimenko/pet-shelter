@@ -1,26 +1,23 @@
 package ru.pet.shelter.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-import org.bson.types.ObjectId;
-import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.mongodb.core.mapping.Document;
-import ru.pet.shelter.model.helper.Sex;
 
 import javax.validation.constraints.NotNull;
-import java.time.LocalDate;
 import java.util.Set;
 
-@Data
 @Document(collection = "pet")
+@EqualsAndHashCode(callSuper = true)
+@Data
 @SuperBuilder
+@NoArgsConstructor
+@TypeAlias("cat")
 public class Cat extends Pet {
 
-    @Id
-    private ObjectId id;
     private Integer length;
     private Integer weight;
     @NotNull

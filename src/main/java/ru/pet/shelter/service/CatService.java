@@ -13,7 +13,7 @@ import ru.pet.shelter.repository.CatRepository;
 
 @Service
 @Tag(name = "Cat")
-public class CatService implements GenericService<Cat>{
+public class CatService implements GenericService<Cat> {
 
     private final CatRepository catRepository;
 

@@ -2,7 +2,6 @@ package ru.pet.shelter.model;
 
 import lombok.Builder;
 import lombok.Data;
-import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
@@ -12,7 +11,7 @@ import java.time.LocalDate;
 public class Description {
 
     @Id
-    private ObjectId id;
+    private String id;
     @NotNull
     private String descriptionText;
     @NotNull

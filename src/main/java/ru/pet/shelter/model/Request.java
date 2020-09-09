@@ -2,7 +2,6 @@ package ru.pet.shelter.model;
 
 import lombok.Builder;
 import lombok.Data;
-import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -15,7 +14,7 @@ import java.time.LocalDate;
 public class Request {
 
     @Id
-    private ObjectId id;
+    private String id;
     @NotNull
     private LocalDate requestDate;
     @NotNull

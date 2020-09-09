@@ -2,7 +2,6 @@ package ru.pet.shelter.model;
 
 import lombok.Builder;
 import lombok.Data;
-import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 
 import javax.validation.constraints.NotNull;
@@ -12,7 +11,7 @@ import java.time.LocalDate;
 @Builder
 public class PassportVaccination {
     @Id
-    private ObjectId id;
+    private String id;
     @NotNull
     private RefVaccination vaccineByVaccineId;
     @NotNull

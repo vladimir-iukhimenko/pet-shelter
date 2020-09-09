@@ -5,5 +5,5 @@ import org.springframework.stereotype.Repository;
 import ru.pet.shelter.model.Dog;
 
 @Repository
-public interface DogRepository extends ReactiveMongoRepository<Dog, String> {
+public interface DogRepository extends PetGenericRepository<Dog> {
 }
