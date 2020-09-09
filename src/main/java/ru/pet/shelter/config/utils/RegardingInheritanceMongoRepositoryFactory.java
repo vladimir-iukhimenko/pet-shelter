@@ -1,12 +1,10 @@
-package ru.pet.shelter.repository.utils;
+package ru.pet.shelter.config.utils;
 
 import org.springframework.data.mapping.context.MappingContext;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.mapping.MongoPersistentEntity;
 import org.springframework.data.mongodb.core.mapping.MongoPersistentProperty;
 import org.springframework.data.mongodb.repository.query.ReactiveMongoQueryMethod;
-import org.springframework.data.mongodb.repository.query.ReactivePartTreeMongoQuery;
-import org.springframework.data.mongodb.repository.query.ReactiveStringBasedAggregation;
 import org.springframework.data.mongodb.repository.query.ReactiveStringBasedMongoQuery;
 import org.springframework.data.mongodb.repository.support.ReactiveMongoRepositoryFactory;
 import org.springframework.data.projection.ProjectionFactory;

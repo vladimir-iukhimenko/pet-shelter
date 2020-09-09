@@ -16,10 +16,12 @@ import ru.pet.shelter.repository.CatRepository;
 public class CatService implements GenericService<Cat> {
 
     private final CatRepository catRepository;
+    private final RefShelterService refShelterService;
 
     @Autowired
-    public CatService(CatRepository catRepository) {
+    public CatService(CatRepository catRepository, RefShelterService refShelterService) {
         this.catRepository = catRepository;
+        this.refShelterService = refShelterService;
     }
 
     @Override
@@ -27,7 +29,15 @@ public class CatService implements GenericService<Cat> {
             @ApiResponse(responseCode = "200", description = "Успешная операция")
     })
     public Flux<Cat> getAll() {
-        return catRepository.findAll();
+
+        return catRepository.findAll()
+                .flatMap(cat -> Mono.just(cat)
+                        .zipWith(refShelterService.getById(cat.getShelterId()),
+                                (c,s) -> {
+                            c.setShelter(s);
+                            return c;
+                                })
+                );
     }
 
     @Override

@@ -1,4 +1,4 @@
-package ru.pet.shelter.repository.utils;
+package ru.pet.shelter.config.utils;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
@@ -45,7 +45,6 @@ public class RegardingInheritanceMongoRepository<T, ID extends Serializable> ext
 
     @Override
     public Flux<T> findAll() {
-        System.out.println("HOBA!!");
         return classCriteria != null ? mongoOperations.find(new Query().addCriteria(classCriteria),
                 entityInformation.getJavaType(),
                 entityInformation.getCollectionName())

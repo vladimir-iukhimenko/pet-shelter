@@ -3,11 +3,9 @@ package ru.pet.shelter.model;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.MongoId;
 import ru.pet.shelter.model.helper.Sex;
 
 import javax.validation.constraints.NotNull;
@@ -35,7 +33,8 @@ public abstract class Pet {
     LocalDate appearanceDate;
     String features;
 
-    @DBRef(db = "pet_shelter")
     @NotNull
-    Shelter shelterByShelterId;
+    String shelterId;
+    @Transient
+    Shelter shelter;
 }

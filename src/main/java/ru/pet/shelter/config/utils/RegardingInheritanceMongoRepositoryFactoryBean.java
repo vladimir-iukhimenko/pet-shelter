@@ -1,4 +1,4 @@
-package ru.pet.shelter.repository.utils;
+package ru.pet.shelter.config.utils;
 
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.repository.support.ReactiveMongoRepositoryFactoryBean;

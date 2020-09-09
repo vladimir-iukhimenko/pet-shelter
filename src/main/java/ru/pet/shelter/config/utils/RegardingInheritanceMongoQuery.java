@@ -1,4 +1,4 @@
-package ru.pet.shelter.repository.utils;
+package ru.pet.shelter.config.utils;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
