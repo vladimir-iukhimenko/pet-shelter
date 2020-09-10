@@ -16,12 +16,12 @@ import ru.pet.shelter.repository.CatRepository;
 public class CatService implements GenericService<Cat> {
 
     private final CatRepository catRepository;
-    private final RefShelterService refShelterService;
+    private final ShelterService shelterService;
 
     @Autowired
-    public CatService(CatRepository catRepository, RefShelterService refShelterService) {
+    public CatService(CatRepository catRepository, ShelterService shelterService) {
         this.catRepository = catRepository;
-        this.refShelterService = refShelterService;
+        this.shelterService = shelterService;
     }
 
     @Override
@@ -32,10 +32,10 @@ public class CatService implements GenericService<Cat> {
 
         return catRepository.findAll()
                 .flatMap(cat -> Mono.just(cat)
-                        .zipWith(refShelterService.getById(cat.getShelterId()),
-                                (c,s) -> {
-                            c.setShelter(s);
-                            return c;
+                        .zipWith(shelterService.getById(cat.getShelterId()),
+                                (ct,sr) -> {
+                            ct.setShelter(sr);
+                            return ct;
                                 })
                 );
     }
@@ -46,21 +46,18 @@ public class CatService implements GenericService<Cat> {
         return catRepository.findById(id);
     }
 
-    @Override
     @Operation(summary = "Сохраняет объект", responses = {
             @ApiResponse(responseCode = "201", description = "Объект создан")
     })
     public Mono<Cat> save(Cat entity) {
-        return catRepository.save(entity);
+        return catRepository.insert(entity);
     }
 
-    @Override
     @Operation(summary = "Обновляет объект")
     public Mono<Cat> update(Cat entity) {
          return catRepository.save(entity);
     }
 
-    @Override
     @Operation(summary = "Удаляет объект")
     public Mono<Void> deleteById(@Parameter(description = "Id объекта", required = true) String id) {
          return catRepository.deleteById(id);
@@ -69,6 +66,6 @@ public class CatService implements GenericService<Cat> {
     @Override
     @Operation(summary = "Возвращает пустой объект")
     public Mono<Cat> empty() {
-        return Mono.just(Cat.builder().build());
+        return Mono.just(new Cat());
     }
 }

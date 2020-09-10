@@ -35,7 +35,6 @@ public class PassportVaccinationService implements GenericService<PassportVaccin
         return passportVaccinationRepository.findById(id);
     }
 
-    @Override
     @Operation(summary = "Сохраняет объект", responses = {
             @ApiResponse(responseCode = "201", description = "Объект создан")
     })
@@ -43,13 +42,11 @@ public class PassportVaccinationService implements GenericService<PassportVaccin
         return passportVaccinationRepository.save(entity);
     }
 
-    @Override
     @Operation(summary = "Обновляет объект")
     public Mono<PassportVaccination> update(PassportVaccination entity) {
         return passportVaccinationRepository.save(entity);
     }
 
-    @Override
     @Operation(summary = "Удаляет объект")
     public Mono<Void> deleteById(@Parameter(description = "Id объекта") String id) {
         return passportVaccinationRepository.deleteById(id);

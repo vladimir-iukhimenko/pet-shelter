@@ -7,6 +7,7 @@ import lombok.experimental.SuperBuilder;
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.util.Set;
 
@@ -22,8 +23,11 @@ public class Cat extends Pet {
     private Integer weight;
     @NotNull
     private String breed;
+    @Valid
     private Passport passport;
     //private Integer curatorByCuratorId; todo:user entity
+    @Valid
     private Chip chip;
+    @Valid
     private Set<Description> description;
 }

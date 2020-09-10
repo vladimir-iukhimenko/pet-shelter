@@ -35,7 +35,6 @@ public class PhotoService implements GenericService<Photo> {
         return photoRepository.findById(id);
     }
 
-    @Override
     @Operation(summary = "Сохраняет объект", responses = {
             @ApiResponse(responseCode = "201", description = "Объект создан")
     })
@@ -43,13 +42,11 @@ public class PhotoService implements GenericService<Photo> {
         return photoRepository.save(entity);
     }
 
-    @Override
     @Operation(summary = "Обновляет объект")
     public Mono<Photo> update(Photo entity) {
         return photoRepository.save(entity);
     }
 
-    @Override
     @Operation(summary = "Удаляет объект")
     public Mono<Void> deleteById(@Parameter(description = "Id объекта") String id) {
         return photoRepository.deleteById(id);

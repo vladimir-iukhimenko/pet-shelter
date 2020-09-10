@@ -7,8 +7,9 @@ import lombok.experimental.SuperBuilder;
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import java.util.List;
+import java.util.Set;
 
 @Document(collection = "pet")
 @EqualsAndHashCode(callSuper = true)
@@ -23,9 +24,12 @@ public class Dog extends Pet {
     private Integer weight;
     @NotNull
     private String breed;
+    @Valid
     private Passport passport;
     //private Integer curatorByCuratorId; todo:user entity
-    private Chip chipByChipid;
-    private List<Description> description;
+    @Valid
+    private Chip chip;
+    @Valid
+    private Set<Description> description;
 
 }

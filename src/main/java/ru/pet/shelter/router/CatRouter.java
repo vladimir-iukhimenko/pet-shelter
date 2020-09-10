@@ -10,11 +10,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
+import org.springframework.http.codec.json.Jackson2CodecSupport;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
 import ru.pet.shelter.model.Cat;
+import ru.pet.shelter.model.view.PetView;
 import ru.pet.shelter.router.utils.EntityValidator;
 import ru.pet.shelter.service.CatService;
 
@@ -45,6 +47,8 @@ public class CatRouter {
                 route()
                         .GET("/cat", this::getAllCats)
 
+                        .GET("/cat/empty", this::emptyCat)
+
                         .GET("/cat/{id}", this::getCatById)
 
                         .POST("/cat/save", this::insertCat)
@@ -53,8 +57,6 @@ public class CatRouter {
 
                         .DELETE("/cat/delete/{id}", this::deleteCat)
 
-                        .GET("/cat/empty", this::emptyCat)
-
                         .build();
     }
 
@@ -62,13 +64,14 @@ public class CatRouter {
 
 
     private Mono<ServerResponse> getAllCats(ServerRequest request) {
-        return ok().contentType(MediaType.APPLICATION_JSON).body(catService.getAll(), Cat.class);
+        return ok().contentType(MediaType.APPLICATION_JSON).hint(Jackson2CodecSupport.JSON_VIEW_HINT, PetView.REST.class).body(catService.getAll(), Cat.class);
     }
 
     private Mono<ServerResponse> getCatById(ServerRequest request) {
         return catService.getById(request.pathVariable("id"))
                 .flatMap(cat -> ok()
                         .contentType(MediaType.APPLICATION_JSON)
+                        .hint(Jackson2CodecSupport.JSON_VIEW_HINT, PetView.INTERNAL.class)
                         .bodyValue(cat))
                 .switchIfEmpty(notFound);
     }
@@ -97,7 +100,7 @@ public class CatRouter {
     }
 
     private Mono<ServerResponse> emptyCat(ServerRequest request) {
-        return ok().bodyValue(catService.empty());
+        return ok().body(catService.empty(), Cat.class);
     }
 
 }

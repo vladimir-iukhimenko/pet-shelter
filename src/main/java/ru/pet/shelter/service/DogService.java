@@ -15,10 +15,12 @@ import ru.pet.shelter.repository.DogRepository;
 @Tag(name = "Dog")
 public class DogService implements GenericService<Dog> {
     private final DogRepository dogRepository;
+    private final ShelterService shelterService;
 
     @Autowired
-    public DogService(DogRepository dogRepository) {
+    public DogService(DogRepository dogRepository, ShelterService shelterService) {
         this.dogRepository = dogRepository;
+        this.shelterService = shelterService;
     }
 
     @Override
@@ -26,7 +28,14 @@ public class DogService implements GenericService<Dog> {
             @ApiResponse(responseCode = "200", description = "Успешная операция")
     })
     public Flux<Dog> getAll() {
-        return dogRepository.findAll();
+        return dogRepository.findAll()
+                .flatMap(dog -> Mono.just(dog)
+                        .zipWith(shelterService.getById(dog.getShelterId()),
+                                (dg,sr) -> {
+                                    dg.setShelter(sr);
+                                    return dg;
+                                })
+                );
     }
 
     @Override
@@ -35,7 +44,6 @@ public class DogService implements GenericService<Dog> {
         return dogRepository.findById(id);
     }
 
-    @Override
     @Operation(summary = "Сохраняет объект", responses = {
             @ApiResponse(responseCode = "201", description = "Объект создан")
     })
@@ -43,13 +51,11 @@ public class DogService implements GenericService<Dog> {
         return dogRepository.save(entity);
     }
 
-    @Override
     @Operation(summary = "Обновляет объект")
     public Mono<Dog> update(Dog entity) {
         return dogRepository.save(entity);
     }
 
-    @Override
     @Operation(summary = "Удаляет объект")
     public Mono<Void> deleteById(@Parameter(description = "Id объекта") String id) {
         return dogRepository.deleteById(id);

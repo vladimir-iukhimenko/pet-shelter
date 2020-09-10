@@ -45,6 +45,8 @@ public class RequestRouter {
                 route()
                         .GET("/request", this::getAllRequests)
 
+                        .GET("/request/empty", this::emptyRequest)
+
                         .GET("/request/{id}", this::getRequestById)
 
                         .POST("/request/save", this::insertRequest)
@@ -53,7 +55,7 @@ public class RequestRouter {
 
                         .DELETE("/request/delete/{id}", this::deleteRequest)
 
-                        .GET("/request/empty", this::emptyRequest)
+
 
                         .build();
     }
@@ -95,6 +97,6 @@ public class RequestRouter {
     }
 
     private Mono<ServerResponse> emptyRequest(ServerRequest request) {
-        return ok().bodyValue(requestService.empty());
+        return ok().body(requestService.empty(), Request.class);
     }
 }

@@ -17,13 +17,13 @@ import ru.pet.shelter.service.DescriptionService;
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.web.reactive.function.server.RouterFunctions.route;
 import static org.springframework.web.reactive.function.server.ServerResponse.*;
-import static org.springframework.web.reactive.function.server.ServerResponse.ok;
 
 @Configuration
 public class DescriptionRouter {
 
     private final DescriptionService descriptionService;
     private final EntityValidator<Description> validator;
+
 
     @Autowired
     public DescriptionRouter(DescriptionService descriptionService, EntityValidator<Description> validator) {
@@ -90,12 +90,12 @@ public class DescriptionRouter {
                 .switchIfEmpty(notFound);
     }
 
+    private Mono<ServerResponse> emptyDescription(ServerRequest request) {
+        return ok().body(descriptionService.empty(), Description.class);
+    }
+
     private Mono<ServerResponse> deleteDescription(ServerRequest request) {
         return descriptionService.deleteById(request.pathVariable("id"))
                 .then(noContent().build());
-    }
-
-    private Mono<ServerResponse> emptyDescription(ServerRequest request) {
-        return ok().bodyValue(descriptionService.empty());
     }
 }

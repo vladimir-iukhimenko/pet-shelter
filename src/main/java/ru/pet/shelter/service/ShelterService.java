@@ -8,56 +8,53 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import ru.pet.shelter.model.RefVaccination;
-import ru.pet.shelter.repository.RefVaccinationRepository;
+import ru.pet.shelter.model.Shelter;
+import ru.pet.shelter.repository.ShelterRepository;
 
 @Service
-@Tag(name = "Ref Vaccination")
-public class RefVaccinationService implements GenericService<RefVaccination> {
-    private final RefVaccinationRepository refVaccinationRepository;
+@Tag(name = "Ref Shelter")
+public class ShelterService implements GenericService<Shelter> {
+    private final ShelterRepository shelterRepository;
 
     @Autowired
-    public RefVaccinationService(RefVaccinationRepository refVaccinationRepository) {
-        this.refVaccinationRepository = refVaccinationRepository;
+    public ShelterService(ShelterRepository shelterRepository) {
+        this.shelterRepository = shelterRepository;
     }
 
     @Override
     @Operation(summary = "Возвращает все сущности", responses = {
             @ApiResponse(responseCode = "200", description = "Успешная операция")
     })
-    public Flux<RefVaccination> getAll() {
-        return refVaccinationRepository.findAll();
+    public Flux<Shelter> getAll() {
+        return shelterRepository.findAll();
     }
 
     @Override
     @Operation(summary = "Возвращает объект по Id")
-    public Mono<RefVaccination> getById(@Parameter(description = "Id объекта") String id) {
-        return refVaccinationRepository.findById(id);
+    public Mono<Shelter> getById(@Parameter(description = "Id объекта") String id) {
+        return shelterRepository.findById(id);
     }
 
-    @Override
     @Operation(summary = "Сохраняет объект", responses = {
             @ApiResponse(responseCode = "201", description = "Объект создан")
     })
-    public Mono<RefVaccination> save(RefVaccination entity) {
-        return refVaccinationRepository.save(entity);
+    public Mono<Shelter> save(Shelter entity) {
+        return shelterRepository.save(entity);
     }
 
-    @Override
     @Operation(summary = "Обновляет объект")
-    public Mono<RefVaccination> update(RefVaccination entity) {
-        return refVaccinationRepository.save(entity);
+    public Mono<Shelter> update(Shelter entity) {
+        return shelterRepository.save(entity);
     }
 
-    @Override
     @Operation(summary = "Удаляет объект")
     public Mono<Void> deleteById(@Parameter(description = "Id объекта") String id) {
-        return refVaccinationRepository.deleteById(id);
+        return shelterRepository.deleteById(id);
     }
 
     @Override
     @Operation(summary = "Возвращает пустой объект")
-    public Mono<RefVaccination> empty() {
-        return Mono.just(RefVaccination.builder().build());
+    public Mono<Shelter> empty() {
+        return Mono.just(Shelter.builder().build());
     }
 }

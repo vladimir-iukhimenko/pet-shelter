@@ -25,6 +25,7 @@ public class PhotoRouter {
     private final PhotoService photoService;
     private final EntityValidator<Photo> validator;
 
+
     @Autowired
     public PhotoRouter(PhotoService photoService, EntityValidator<Photo> validator) {
         this.photoService = photoService;
@@ -36,7 +37,6 @@ public class PhotoRouter {
             @RouterOperation(path = "/photo", beanClass = PhotoService.class, beanMethod = "getAll"),
             @RouterOperation(path = "/photo/{id}", beanClass = PhotoService.class, beanMethod = "getById"),
             @RouterOperation(path = "/photo/save", beanClass = PhotoService.class, beanMethod = "save"),
-            @RouterOperation(path = "/photo/update/{id}", beanClass = PhotoService.class, beanMethod = "update"),
             @RouterOperation(path = "/photo/delete/{id}", beanClass = PhotoService.class, beanMethod = "deleteById"),
             @RouterOperation(path = "/photo/empty", beanClass = PhotoService.class, beanMethod = "empty")
     })
@@ -44,17 +44,10 @@ public class PhotoRouter {
         return
                 route()
                         .GET("/photo", this::getAllPhotos)
-
-                        .GET("/photo/{id}", this::getPhotoById)
-
-                        .POST("/photo/save", this::insertPhoto)
-
-                        .PUT("/photo/update/{id}", this::updatePhoto)
-
-                        .DELETE("/photo/delete/{id}", this::deletePhoto)
-
                         .GET("/photo/empty", this::emptyPhoto)
-
+                        .GET("/photo/{id}", this::getPhotoById)
+                        .POST("/photo/save", this::insertPhoto)
+                        .DELETE("/photo/delete/{id}", this::deletePhoto)
                         .build();
     }
 
@@ -80,22 +73,13 @@ public class PhotoRouter {
                         .body(photoService.save(photo), Photo.class));
     }
 
-    private Mono<ServerResponse> updatePhoto(ServerRequest request) {
-        return request.bodyToMono(Photo.class)
-                .doOnNext(validator::validate)
-                .flatMap(photo -> ok()
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .body(photoService.save(photo), Photo.class))
-                .switchIfEmpty(notFound);
-    }
-
     private Mono<ServerResponse> deletePhoto(ServerRequest request) {
         return photoService.deleteById(request.pathVariable("id"))
                 .then(noContent().build());
     }
 
     private Mono<ServerResponse> emptyPhoto(ServerRequest request) {
-        return ok().bodyValue(photoService.empty());
+        return ok().body(photoService.empty(), Photo.class);
     }
 
 }

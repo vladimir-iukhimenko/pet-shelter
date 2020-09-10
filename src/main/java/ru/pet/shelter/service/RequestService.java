@@ -35,7 +35,6 @@ public class RequestService implements GenericService<Request> {
         return requestRepository.findById(id);
     }
 
-    @Override
     @Operation(summary = "Сохраняет объект", responses = {
             @ApiResponse(responseCode = "201", description = "Объект создан")
     })
@@ -43,13 +42,11 @@ public class RequestService implements GenericService<Request> {
         return requestRepository.save(entity);
     }
 
-    @Override
     @Operation(summary = "Обновляет объект")
     public Mono<Request> update(Request entity) {
         return requestRepository.save(entity);
     }
 
-    @Override
     @Operation(summary = "Удаляет объект")
     public Mono<Void> deleteById(@Parameter(description = "Id объекта") String id) {
         return requestRepository.deleteById(id);

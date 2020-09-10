@@ -2,8 +2,8 @@ package ru.pet.shelter.model;
 
 import lombok.Builder;
 import lombok.Data;
-import org.springframework.data.annotation.Id;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.util.Set;
 
@@ -11,11 +11,11 @@ import java.util.Set;
 @Builder
 public class Passport {
 
-    @Id
-    private String id;
     @NotNull
     private Long number;
-    private Photo photoByPhotoId;
+    @Valid
+    private Photo photo;
+    @Valid
     private Set<PassportVaccination> passportVaccinations;
 
 }

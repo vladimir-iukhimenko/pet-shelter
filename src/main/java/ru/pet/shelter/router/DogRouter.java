@@ -6,11 +6,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
+import org.springframework.http.codec.json.Jackson2CodecSupport;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
 import ru.pet.shelter.model.Dog;
+import ru.pet.shelter.model.view.PetView;
 import ru.pet.shelter.router.utils.EntityValidator;
 import ru.pet.shelter.service.DogService;
 
@@ -45,6 +47,8 @@ public class DogRouter {
                 route()
                         .GET("/dog", this::getAllDogs)
 
+                        .GET("/dog/empty", this::emptyDog)
+
                         .GET("/dog/{id}", this::getDogById)
 
                         .POST("/dog/save", this::insertDog)
@@ -53,21 +57,20 @@ public class DogRouter {
 
                         .DELETE("/dog/delete/{id}", this::deleteDog)
 
-                        .GET("/dog/empty", this::emptyDog)
-
                         .build();
     }
 
     Mono<ServerResponse> notFound = ServerResponse.notFound().build();
 
     private Mono<ServerResponse> getAllDogs(ServerRequest request) {
-        return ok().contentType(MediaType.APPLICATION_JSON).body(dogService.getAll(), Dog.class);
+        return ok().contentType(MediaType.APPLICATION_JSON).hint(Jackson2CodecSupport.JSON_VIEW_HINT, PetView.REST.class).body(dogService.getAll(), Dog.class);
     }
 
     private Mono<ServerResponse> getDogById(ServerRequest request) {
         return dogService.getById(request.pathVariable("id"))
                 .flatMap(dog -> ok()
                         .contentType(MediaType.APPLICATION_JSON)
+                        .hint(Jackson2CodecSupport.JSON_VIEW_HINT, PetView.INTERNAL.class)
                         .bodyValue(dog))
                 .switchIfEmpty(notFound);
     }
@@ -95,7 +98,7 @@ public class DogRouter {
     }
 
     private Mono<ServerResponse> emptyDog(ServerRequest request) {
-        return ok().bodyValue(dogService.empty());
+        return ok().body(dogService.empty(), Dog.class);
     }
 
 }

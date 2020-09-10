@@ -15,10 +15,14 @@ import ru.pet.shelter.repository.ChipRepository;
 @Tag(name = "Chip")
 public class ChipService implements GenericService<Chip> {
     private final ChipRepository chipRepository;
+    private final CatService catService;
+    private final DogService dogService;
 
     @Autowired
-    public ChipService(ChipRepository chipRepository) {
+    public ChipService(ChipRepository chipRepository, CatService catService, DogService dogService) {
         this.chipRepository = chipRepository;
+        this.catService = catService;
+        this.dogService = dogService;
     }
 
     @Override
@@ -26,38 +30,21 @@ public class ChipService implements GenericService<Chip> {
             @ApiResponse(responseCode = "200", description = "Успешная операция")
     })
     public Flux<Chip> getAll() {
-        return chipRepository.findAll();
+        return catService.getAll().flatMap(cat -> Mono.justOrEmpty(cat.getChip()))
+                .concatWith(dogService.getAll().flatMap(dog -> Mono.justOrEmpty(dog.getChip())));
     }
 
     @Override
     @Operation(summary = "Возвращает объект по Id")
-    public Mono<Chip> getById(@Parameter(description = "Id объекта") String id) {
-        return chipRepository.findById(id);
-    }
-
-    @Override
-    @Operation(summary = "Сохраняет объект", responses = {
-            @ApiResponse(responseCode = "201", description = "Объект создан")
-    })
-    public Mono<Chip> save(Chip entity) {
-        return chipRepository.save(entity);
-    }
-
-    @Override
-    @Operation(summary = "Обновляет объект")
-    public Mono<Chip> update(Chip entity) {
-        return chipRepository.save(entity);
-    }
-
-    @Override
-    @Operation(summary = "Удаляет объект")
-    public Mono<Void> deleteById(@Parameter(description = "Id объекта") String id) {
-        return chipRepository.deleteById(id);
+    public Mono<Chip> getById(@Parameter(description = "Id объекта") String chipNumber) {
+        return getAll()
+                .filter(chip -> chip.getChipNumber().equals(chipNumber))
+                .next();
     }
 
     @Override
     @Operation(summary = "Возвращает пустой объект")
     public Mono<Chip> empty() {
-        return Mono.just(Chip.builder().build());
+        return Mono.just(new Chip());
     }
 }

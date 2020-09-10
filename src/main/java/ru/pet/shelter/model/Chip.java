@@ -1,7 +1,6 @@
 package ru.pet.shelter.model;
 
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
 import org.springframework.data.annotation.Id;
 
 import javax.validation.constraints.NotNull;
@@ -9,12 +8,15 @@ import java.time.LocalDate;
 
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Chip {
 
     @Id
-    private String id;
+    @NotNull
+    private String chipNumber;
+
     @NotNull
     private LocalDate chipDate;
-    @NotNull
-    private Long chipNumber;
+
 }
