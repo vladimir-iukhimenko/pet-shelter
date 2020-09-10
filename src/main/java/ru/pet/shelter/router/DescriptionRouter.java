@@ -45,6 +45,8 @@ public class DescriptionRouter {
                 route()
                         .GET("/description", this::getAllDescriptions)
 
+                        .GET("/description/empty", this::emptyDescription)
+
                         .GET("/description/{id}", this::getDescriptionById)
 
                         .POST("/description/save", this::insertDescription)
@@ -52,8 +54,6 @@ public class DescriptionRouter {
                         .PUT("/description/update/{id}", this::updateDescription)
 
                         .DELETE("/description/delete/{id}", this::deleteDescription)
-
-                        .GET("/description/empty", this::emptyDescription)
 
                         .build();
 

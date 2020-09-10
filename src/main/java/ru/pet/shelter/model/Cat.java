@@ -28,6 +28,4 @@ public class Cat extends Pet {
     //private Integer curatorByCuratorId; todo:user entity
     @Valid
     private Chip chip;
-    @Valid
-    private Set<Description> description;
 }
