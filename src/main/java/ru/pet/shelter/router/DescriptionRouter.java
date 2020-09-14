@@ -1,5 +1,6 @@
 package ru.pet.shelter.router;
 
+import org.bson.types.ObjectId;
 import org.springdoc.core.annotations.RouterOperation;
 import org.springdoc.core.annotations.RouterOperations;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,6 +77,7 @@ public class DescriptionRouter {
     private Mono<ServerResponse> insertDescription(ServerRequest request) {
         return request.bodyToMono(Description.class)
                 .doOnNext(validator::validate)
+                .doOnNext(description -> description.setId(new ObjectId().toHexString()))
                 .flatMap(description -> status(CREATED)
                         .contentType(MediaType.APPLICATION_JSON)
                         .body(descriptionService.save(description), Description.class));

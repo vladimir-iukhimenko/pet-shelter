@@ -13,7 +13,6 @@ import ru.pet.shelter.model.view.PetView;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Set;
 
 @Data
 @SuperBuilder
@@ -42,5 +41,5 @@ public abstract class Pet {
     @Transient
     Shelter shelter;
     List<Photo> photos;
-    Set<Description> description;
+    List<Description> description;
 }

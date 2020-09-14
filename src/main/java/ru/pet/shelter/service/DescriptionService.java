@@ -48,10 +48,9 @@ public class DescriptionService implements GenericService<Description> {
                 .filter(pet -> pet.getId().equals(entity.getPetId()))
                 .next()
                 .doOnNext(pet -> pet.getDescription().add(entity))
-                .doOnNext(petRepository::save)
+                .flatMap(petRepository::save)
                 .flatMapIterable(Pet::getDescription)
-                .filter(description -> description.getId().equals(entity.getId()))
-                .next()
+                .last()
                 .switchIfEmpty(Mono.empty());
     }
 

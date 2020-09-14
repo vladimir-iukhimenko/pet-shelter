@@ -9,6 +9,7 @@ import ru.pet.shelter.model.*;
 import ru.pet.shelter.model.helper.Sex;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 
 @ChangeLog(order = "20200904")
 public class DatabaseInitializeChangeLog {
@@ -81,6 +82,7 @@ public class DatabaseInitializeChangeLog {
                 .breed("Бигль")
                 .passport(Passport.builder().number(260012502910L).build())
                 .chip(Chip.builder().chipNumber("200000306").chipDate(LocalDate.now()).build())
+                .description(new ArrayList<>())
                 .build(), "pet");
     }
 
