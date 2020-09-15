@@ -9,18 +9,15 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import ru.pet.shelter.model.Chip;
-import ru.pet.shelter.repository.ChipRepository;
 
 @Service
 @Tag(name = "Chip")
 public class ChipService implements GenericService<Chip> {
-    private final ChipRepository chipRepository;
     private final CatService catService;
     private final DogService dogService;
 
     @Autowired
-    public ChipService(ChipRepository chipRepository, CatService catService, DogService dogService) {
-        this.chipRepository = chipRepository;
+    public ChipService(CatService catService, DogService dogService) {
         this.catService = catService;
         this.dogService = dogService;
     }
@@ -40,6 +37,23 @@ public class ChipService implements GenericService<Chip> {
         return getAll()
                 .filter(chip -> chip.getChipNumber().equals(chipNumber))
                 .next();
+    }
+
+    @Operation(summary = "Сохраняет объект", responses = {
+            @ApiResponse(responseCode = "201", description = "Объект создан")
+    })
+    public Mono<Chip> save(Chip entity) {
+        return catRepository.insert(entity);
+    }
+
+    @Operation(summary = "Обновляет объект")
+    public Mono<Chip> update(Chip entity) {
+        return catRepository.save(entity);
+    }
+
+    @Operation(summary = "Удаляет объект")
+    public Mono<Void> deleteById(@Parameter(description = "Id объекта", required = true) String id) {
+        return catRepository.deleteById(id);
     }
 
     @Override

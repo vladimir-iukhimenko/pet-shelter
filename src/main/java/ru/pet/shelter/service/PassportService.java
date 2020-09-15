@@ -14,11 +14,13 @@ import ru.pet.shelter.repository.PassportRepository;
 @Service
 @Tag(name = "Passport")
 public class PassportService implements GenericService<Passport> {
-    private final PassportRepository passportRepository;
+    private final CatService catService;
+    private final DogService dogService;
 
     @Autowired
-    public PassportService(PassportRepository passportRepository) {
-        this.passportRepository = passportRepository;
+    public PassportService(CatService catService, DogService dogService) {
+        this.catService = catService;
+        this.dogService = dogService;
     }
 
     @Override
@@ -26,13 +28,16 @@ public class PassportService implements GenericService<Passport> {
             @ApiResponse(responseCode = "200", description = "Успешная операция")
     })
     public Flux<Passport> getAll() {
-        return passportRepository.findAll();
+        return catService.getAll().flatMap(cat -> Mono.justOrEmpty(cat.getPassport()))
+                .concatWith(dogService.getAll().flatMap(dog -> Mono.justOrEmpty(dog.getPassport())));
     }
 
     @Override
     @Operation(summary = "Возвращает объект по Id")
-    public Mono<Passport> getById(@Parameter(description = "Id объекта") String id) {
-        return passportRepository.findById(id);
+    public Mono<Passport> getById(@Parameter(description = "Id объекта") String passportNumber) {
+        return getAll()
+                .filter(passport -> passport.getNumber().equals(passportNumber))
+                .next();
     }
 
     @Operation(summary = "Сохраняет объект", responses = {

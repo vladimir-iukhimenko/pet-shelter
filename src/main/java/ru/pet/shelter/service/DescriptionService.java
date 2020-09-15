@@ -17,12 +17,10 @@ import ru.pet.shelter.repository.PetRepository;
 @Service
 @Tag(name = "Description")
 public class DescriptionService implements GenericService<Description> {
-    private final DescriptionRepository descriptionRepository;
     private final PetRepository petRepository;
 
     @Autowired
-    public DescriptionService(DescriptionRepository descriptionRepository, PetRepository petRepository) {
-        this.descriptionRepository = descriptionRepository;
+    public DescriptionService(PetRepository petRepository) {
         this.petRepository = petRepository;
     }
 
@@ -56,12 +54,43 @@ public class DescriptionService implements GenericService<Description> {
 
     @Operation(summary = "Обновляет объект")
     public Mono<Description> update(Description entity) {
-        return descriptionRepository.save(entity);
+        return petRepository.findById(entity.getPetId())
+                .flatMap(pet -> Mono.just(pet)
+                        .zipWith(
+                                petRepository
+                                        .findById(entity.getPetId())
+                                        .flatMapIterable(Pet::getDescription)
+                                        .filter(description -> !(description.getId().equals(entity.getId())))
+                                        .concatWith(Mono.just(entity)).collectList(),
+                                (pt, description) -> {
+                                    pt.setDescription(description);
+                                    return pt;
+                                })
+                )
+                .flatMap(petRepository::save)
+                .flatMapIterable(Pet::getDescription)
+                .filter(description -> description.getId().equals(entity.getId()))
+                .next();
     }
 
     @Operation(summary = "Удаляет объект")
     public Mono<Void> deleteById(@Parameter(description = "Id объекта") String id) {
-        return descriptionRepository.deleteById(id);
+        return getById(id)
+                .flatMap(description -> petRepository.findById(description.getPetId()))
+                .flatMap(pet -> Mono.just(pet)
+                        .zipWith(
+                                petRepository
+                                        .findById(pet.getId())
+                                        .flatMapIterable(Pet::getDescription)
+                                        .filter(description -> !(description.getId().equals(id)))
+                                        .collectList(),
+                                (pt, description) -> {
+                                    pt.setDescription(description);
+                                    return pt;
+                                })
+                )
+                .flatMap(petRepository::save)
+                .then();
     }
 
     @Override

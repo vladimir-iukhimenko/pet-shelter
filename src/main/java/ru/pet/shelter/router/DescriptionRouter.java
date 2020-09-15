@@ -38,7 +38,7 @@ public class DescriptionRouter {
             @RouterOperation(path = "/description/{id}", beanClass = DescriptionService.class, beanMethod = "getById"),
             @RouterOperation(path = "/description/save", beanClass = DescriptionService.class, beanMethod = "save"),
             @RouterOperation(path = "/description/update/{id}", beanClass = DescriptionService.class, beanMethod = "update"),
-            @RouterOperation(path = "/description/delete/{id}", beanClass = DescriptionService.class, beanMethod = "deleteById"),
+            @RouterOperation(path = "/description/{id}", beanClass = DescriptionService.class, beanMethod = "deleteById"),
             @RouterOperation(path = "/description/empty", beanClass = DescriptionService.class, beanMethod = "empty")
     })
     RouterFunction<ServerResponse> descriptionRoutes() {
@@ -52,9 +52,9 @@ public class DescriptionRouter {
 
                         .POST("/description/save", this::insertDescription)
 
-                        .PUT("/description/update/{id}", this::updateDescription)
+                        .PUT("/description/update", this::updateDescription)
 
-                        .DELETE("/description/delete/{id}", this::deleteDescription)
+                        .DELETE("/description/{id}", this::deleteDescription)
 
                         .build();
 
@@ -88,7 +88,7 @@ public class DescriptionRouter {
                 .doOnNext(validator::validate)
                 .flatMap(description -> ok()
                         .contentType(MediaType.APPLICATION_JSON)
-                        .body(descriptionService.save(description), Description.class))
+                        .body(descriptionService.update(description), Description.class))
                 .switchIfEmpty(notFound);
     }
 

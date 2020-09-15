@@ -9,7 +9,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import java.util.Set;
 
 @Document(collection = "pet")
 @EqualsAndHashCode(callSuper = true)

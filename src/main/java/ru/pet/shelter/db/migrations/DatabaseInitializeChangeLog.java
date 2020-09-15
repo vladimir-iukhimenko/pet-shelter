@@ -56,6 +56,7 @@ public class DatabaseInitializeChangeLog {
                 .breed("Мейн-кун")
                 .passport(Passport.builder().number(6000002500L).build())
                 .chip(Chip.builder().chipNumber("10000001").chipDate(LocalDate.now()).build())
+                .description(new ArrayList<>())
                 .build(), "pet");
         mongockTemplate.save(Cat.builder()
                 .name("Мурзик")
@@ -69,6 +70,7 @@ public class DatabaseInitializeChangeLog {
                 .breed("Сиамская")
                 .passport(Passport.builder().number(61450004301L).build())
                 .chip(Chip.builder().chipNumber("16000501").chipDate(LocalDate.now()).build())
+                .description(new ArrayList<>())
                 .build(), "pet");
         mongockTemplate.save(Dog.builder()
                 .name("Кира")

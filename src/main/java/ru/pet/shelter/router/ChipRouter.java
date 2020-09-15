@@ -1,5 +1,6 @@
 package ru.pet.shelter.router;
 
+import org.bson.types.ObjectId;
 import org.springdoc.core.annotations.RouterOperation;
 import org.springdoc.core.annotations.RouterOperations;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,8 +12,10 @@ import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
 import ru.pet.shelter.model.Chip;
+import ru.pet.shelter.router.utils.EntityValidator;
 import ru.pet.shelter.service.ChipService;
 
+import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.web.reactive.function.server.RouterFunctions.route;
 import static org.springframework.web.reactive.function.server.ServerResponse.*;
 
@@ -21,10 +24,13 @@ import static org.springframework.web.reactive.function.server.ServerResponse.*;
 public class ChipRouter {
 
     private final ChipService chipService;
+    private final EntityValidator<Chip> validator;
+
 
     @Autowired
-    public ChipRouter(ChipService chipService) {
+    public ChipRouter(ChipService chipService, EntityValidator<Chip> validator) {
         this.chipService = chipService;
+        this.validator = validator;
     }
 
     @Bean
@@ -32,13 +38,25 @@ public class ChipRouter {
             @RouterOperation(path = "/chip", beanClass = ChipService.class, beanMethod = "getAll"),
             @RouterOperation(path = "/chip/{id}", beanClass = ChipService.class, beanMethod = "getById"),
             @RouterOperation(path = "/chip/empty", beanClass = ChipService.class, beanMethod = "empty")
+            @RouterOperation(path = "/chip/update/{id}", beanClass = ChipService.class, beanMethod = "update"),
+            @RouterOperation(path = "/chip/{id}", beanClass = ChipService.class, beanMethod = "deleteById"),
+            @RouterOperation(path = "/chip/empty", beanClass = ChipService.class, beanMethod = "empty")
     })
     RouterFunction<ServerResponse> chipRoutes() {
         return
                 route()
                         .GET("/chip", this::getAllChips)
+
                         .GET("/chip/empty", this::emptyChip)
+
                         .GET("/chip/{id}", this::getChipById)
+
+                        .POST("/chip/save", this::insertChip)
+
+                        .PUT("/chip/update", this::updateChip)
+
+                        .DELETE("/chip/{id}", this::deleteChip)
+
                         .build();
     }
 
@@ -56,8 +74,31 @@ public class ChipRouter {
                 .switchIfEmpty(notFound);
     }
 
+    private Mono<ServerResponse> insertChip(ServerRequest request) {
+        return request.bodyToMono(Chip.class)
+                .doOnNext(validator::validate)
+                .doOnNext(chip -> chip.setId(new ObjectId().toHexString()))
+                .flatMap(chip -> status(CREATED)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .body(chipService.save(chip), Chip.class));
+    }
+
+    private Mono<ServerResponse> updateChip(ServerRequest request) {
+        return request.bodyToMono(Chip.class)
+                .doOnNext(validator::validate)
+                .flatMap(chip -> ok()
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .body(chipService.update(chip), Chip.class))
+                .switchIfEmpty(notFound);
+    }
+
     private Mono<ServerResponse> emptyChip(ServerRequest request) {
         return ok().body(chipService.empty(), Chip.class);
+    }
+
+    private Mono<ServerResponse> deleteChip(ServerRequest request) {
+        return chipService.deleteById(request.pathVariable("id"))
+                .then(noContent().build());
     }
 
 }
