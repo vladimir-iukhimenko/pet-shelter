@@ -44,17 +44,17 @@ public class PassportService implements GenericService<Passport> {
             @ApiResponse(responseCode = "201", description = "Объект создан")
     })
     public Mono<Passport> save(Passport entity) {
-        return passportRepository.save(entity);
+        return Mono.empty();
     }
 
     @Operation(summary = "Обновляет объект")
     public Mono<Passport> update(Passport entity) {
-        return passportRepository.save(entity);
+        return Mono.empty();
     }
 
     @Operation(summary = "Удаляет объект")
     public Mono<Void> deleteById(@Parameter(description = "Id объекта") String id) {
-        return passportRepository.deleteById(id);
+        return Mono.empty();
     }
 
     @Override

@@ -12,11 +12,11 @@ public class Chip {
 
     @Id
     String id;
-
     @NotNull
     private String chipNumber;
-
     @NotNull
     private LocalDate chipDate;
+    @NotNull
+    private String petId;
 
 }

@@ -54,7 +54,7 @@ public class DatabaseInitializeChangeLog {
                 .length(70)
                 .weight(4500)
                 .breed("Мейн-кун")
-                .passport(Passport.builder().number(6000002500L).build())
+                .passport(Passport.builder().number("6000002500").build())
                 .chip(Chip.builder().chipNumber("10000001").chipDate(LocalDate.now()).build())
                 .description(new ArrayList<>())
                 .build(), "pet");
@@ -68,7 +68,7 @@ public class DatabaseInitializeChangeLog {
                 .length(50)
                 .weight(3200)
                 .breed("Сиамская")
-                .passport(Passport.builder().number(61450004301L).build())
+                .passport(Passport.builder().number("61450004301").build())
                 .chip(Chip.builder().chipNumber("16000501").chipDate(LocalDate.now()).build())
                 .description(new ArrayList<>())
                 .build(), "pet");
@@ -82,7 +82,7 @@ public class DatabaseInitializeChangeLog {
                 .length(80)
                 .weight(8900)
                 .breed("Бигль")
-                .passport(Passport.builder().number(260012502910L).build())
+                .passport(Passport.builder().number("260012502910").build())
                 .chip(Chip.builder().chipNumber("200000306").chipDate(LocalDate.now()).build())
                 .description(new ArrayList<>())
                 .build(), "pet");

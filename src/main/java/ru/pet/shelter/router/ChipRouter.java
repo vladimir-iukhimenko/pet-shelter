@@ -37,7 +37,7 @@ public class ChipRouter {
     @RouterOperations({
             @RouterOperation(path = "/chip", beanClass = ChipService.class, beanMethod = "getAll"),
             @RouterOperation(path = "/chip/{id}", beanClass = ChipService.class, beanMethod = "getById"),
-            @RouterOperation(path = "/chip/empty", beanClass = ChipService.class, beanMethod = "empty")
+            @RouterOperation(path = "/chip/empty", beanClass = ChipService.class, beanMethod = "empty"),
             @RouterOperation(path = "/chip/update/{id}", beanClass = ChipService.class, beanMethod = "update"),
             @RouterOperation(path = "/chip/{id}", beanClass = ChipService.class, beanMethod = "deleteById"),
             @RouterOperation(path = "/chip/empty", beanClass = ChipService.class, beanMethod = "empty")
