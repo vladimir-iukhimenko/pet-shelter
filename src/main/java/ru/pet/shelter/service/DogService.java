@@ -14,6 +14,7 @@ import ru.pet.shelter.repository.DogRepository;
 @Service
 @Tag(name = "Dog")
 public class DogService implements GenericService<Dog> {
+
     private final DogRepository dogRepository;
     private final ShelterService shelterService;
 

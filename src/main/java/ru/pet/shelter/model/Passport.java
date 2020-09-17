@@ -17,11 +17,14 @@ import java.util.Set;
 public class Passport {
 
     @Id
+    private String id;
     @NotNull
     private String number;
     @Valid
     private Photo photo;
     @Valid
     private Set<PassportVaccination> passportVaccinations;
+    @NotNull
+    private String petId;
 
 }

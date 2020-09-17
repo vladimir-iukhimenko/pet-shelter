@@ -53,12 +53,13 @@ public class ChipService implements GenericService<Chip> {
             @ApiResponse(responseCode = "201", description = "Объект создан")
     })
     public Mono<Chip> save(Chip entity) {
-        petRepository.findById(entity.getPetId())
+        return petRepository.findById(entity.getPetId())
                 .flatMap(pet -> {
                     switch (pet.getClass().getSimpleName()) {
                         case "Cat": return saveInCat(pet, entity, false);
                         case "Dog": return saveInDog(pet, entity, false);
                     }
+                    return Mono.empty();
                 })
                 .switchIfEmpty(Mono.error(new ServerWebInputException("Parent entity not found!")));
     }
@@ -70,14 +71,13 @@ public class ChipService implements GenericService<Chip> {
 
     @Operation(summary = "Удаляет объект")
     public Mono<Void> deleteById(@Parameter(description = "Id объекта", required = true) String id) {
-        return getById(id)
-                .flatMap(chip -> petRepository.findById(chip.getPetId()))
-                .flatMap(pet -> {
+        return getById(id).flatMap(chip -> petRepository.findById(chip.getPetId())
+                .doOnNext(pet -> {
                     switch (pet.getClass().getSimpleName()) {
-                        case "Cat": return saveInCat(pet, chip, true);
-                        case "Dog": return saveInDog(pet, entity, false);
+                        case "Cat": saveInCat(pet, chip, true);
+                        case "Dog": saveInDog(pet, chip, true);
                     }
-                })
+                }).then());
     }
 
     @Override

@@ -39,7 +39,7 @@ public class DogRouter {
             @RouterOperation(path = "/dog/{id}", beanClass = DogService.class, beanMethod = "getById"),
             @RouterOperation(path = "/dog/save", beanClass = DogService.class, beanMethod = "save"),
             @RouterOperation(path = "/dog/update/{id}", beanClass = DogService.class, beanMethod = "update"),
-            @RouterOperation(path = "/dog/delete/{id}", beanClass = DogService.class, beanMethod = "deleteById"),
+            @RouterOperation(path = "/dog/{id}", beanClass = DogService.class, beanMethod = "deleteById"),
             @RouterOperation(path = "/dog/empty", beanClass = DogService.class, beanMethod = "empty")
     })
     RouterFunction<ServerResponse> dogRoutes() {
@@ -55,7 +55,7 @@ public class DogRouter {
 
                         .PUT("/dog/update/{id}", this::updateDog)
 
-                        .DELETE("/dog/delete/{id}", this::deleteDog)
+                        .DELETE("/dog/{id}", this::deleteDog)
 
                         .build();
     }

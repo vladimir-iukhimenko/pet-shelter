@@ -34,8 +34,8 @@ public class CatService implements GenericService<Cat> {
                 .flatMap(cat -> Mono.just(cat)
                         .zipWith(shelterService.getById(cat.getShelterId()),
                                 (ct,sr) -> {
-                            ct.setShelter(sr);
-                            return ct;
+                                    ct.setShelter(sr);
+                                    return ct;
                                 })
                 );
     }
@@ -66,6 +66,6 @@ public class CatService implements GenericService<Cat> {
     @Override
     @Operation(summary = "Возвращает пустой объект")
     public Mono<Cat> empty() {
-        return Mono.just(new Cat());
+        return Mono.just(Cat.builder().build());
     }
 }

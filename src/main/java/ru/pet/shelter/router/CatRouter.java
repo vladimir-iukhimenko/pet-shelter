@@ -39,7 +39,7 @@ public class CatRouter {
             @RouterOperation(path = "/cat/{id}", beanClass = CatService.class, beanMethod = "getById"),
             @RouterOperation(path = "/cat/save", beanClass = CatService.class, beanMethod = "save"),
             @RouterOperation(path = "/cat/update/{id}", beanClass = CatService.class, beanMethod = "update"),
-            @RouterOperation(path = "/cat/delete/{id}", beanClass = CatService.class, beanMethod = "deleteById"),
+            @RouterOperation(path = "/cat/{id}", beanClass = CatService.class, beanMethod = "deleteById"),
             @RouterOperation(path = "/cat/empty", beanClass = CatService.class, beanMethod = "empty")
     })
     RouterFunction<ServerResponse> catRoutes() {
@@ -55,7 +55,7 @@ public class CatRouter {
 
                         .PUT("/cat/update/{id}", this::updateCat)
 
-                        .DELETE("/cat/delete/{id}", this::deleteCat)
+                        .DELETE("/cat/{id}", this::deleteCat)
 
                         .build();
     }
