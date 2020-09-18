@@ -8,7 +8,7 @@ import org.springframework.data.annotation.Id;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import java.util.Set;
+import java.util.List;
 
 @Data
 @Builder
@@ -23,7 +23,7 @@ public class Passport {
     @Valid
     private Photo photo;
     @Valid
-    private Set<PassportVaccination> passportVaccinations;
+    private List<PassportVaccination> passportVaccinations;
     @NotNull
     private String petId;
 
