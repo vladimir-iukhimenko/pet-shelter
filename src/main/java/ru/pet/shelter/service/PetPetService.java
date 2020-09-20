@@ -4,7 +4,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import ru.pet.shelter.model.Pet;
 
-public class PetService implements GenericService<Pet> {
+public class PetPetService implements GenericPetService<Pet> {
     @Override
     public Flux<Pet> getAll() {
         return null;

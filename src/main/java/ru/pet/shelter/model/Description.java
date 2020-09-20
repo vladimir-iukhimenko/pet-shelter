@@ -17,7 +17,5 @@ public class Description {
     private String descriptionText;
     @NotNull
     private LocalDate timeAdded;
-    @NotNull
-    private String petId;
 
 }

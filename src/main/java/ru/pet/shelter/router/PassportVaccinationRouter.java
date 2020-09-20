@@ -34,25 +34,28 @@ public class PassportVaccinationRouter {
 
     @Bean
     @RouterOperations({
-            @RouterOperation(path = "/pass-vaccine", beanClass = PassportVaccinationService.class, beanMethod = "getAll"),
-            @RouterOperation(path = "/pass-vaccine/{id}", beanClass = PassportVaccinationService.class, beanMethod = "getById"),
-            @RouterOperation(path = "/description/save", beanClass = PassportVaccinationService.class, beanMethod = "save"),
+            @RouterOperation(path = "/pass-vaccine/all", beanClass = PassportVaccinationService.class, beanMethod = "findAll"),
+            @RouterOperation(path = "/pass-vaccine/byPet/{id}", beanClass = PassportVaccinationService.class, beanMethod = "findAllByPetId"),
+            @RouterOperation(path = "/pass-vaccine/empty", beanClass = PassportVaccinationService.class, beanMethod = "empty"),
+            @RouterOperation(path = "/pass-vaccine/{id}", beanClass = PassportVaccinationService.class, beanMethod = "findById"),
+            @RouterOperation(path = "/description/save/{id}", beanClass = PassportVaccinationService.class, beanMethod = "save"),
             @RouterOperation(path = "/description/update/{id}", beanClass = PassportVaccinationService.class, beanMethod = "update"),
-            @RouterOperation(path = "/pass-vaccine/{id}", beanClass = PassportVaccinationService.class, beanMethod = "deleteById"),
-            @RouterOperation(path = "/pass-vaccine/empty", beanClass = PassportVaccinationService.class, beanMethod = "empty")
+            @RouterOperation(path = "/pass-vaccine/{id}", beanClass = PassportVaccinationService.class, beanMethod = "removeById"),
     })
     RouterFunction<ServerResponse> passportVaccinationRoutes() {
         return
                 route()
-                        .GET("/pass-vaccine", this::getAllPassportVaccinations)
+                        .GET("/pass-vaccine/all", this::getAllPassportVaccinations)
+
+                        .GET("/pass-vaccine/byPet/{id}", this::getAllPassportVaccinationsFromPet)
 
                         .GET("/pass-vaccine/empty", this::emptyPassportVaccination)
 
                         .GET("/pass-vaccine/{id}", this::getPassportVaccinationById)
 
-                        .POST("/description/save", this::insertPassportVaccination)
+                        .POST("/description/save/{id}", this::insertPassportVaccination)
 
-                        .PUT("/description/update", this::updatePassportVaccination)
+                        .PUT("/description/update/{id}", this::updatePassportVaccination)
 
                         .DELETE("/pass-vaccine/{id}", this::deletePassportVaccination)
 
@@ -62,11 +65,16 @@ public class PassportVaccinationRouter {
     Mono<ServerResponse> notFound = ServerResponse.notFound().build();
 
     private Mono<ServerResponse> getAllPassportVaccinations(ServerRequest request) {
-        return ok().contentType(MediaType.APPLICATION_JSON).body(passportVaccinationService.getAll(), PassportVaccination.class);
+        return ok().contentType(MediaType.APPLICATION_JSON).body(passportVaccinationService.findAll(), PassportVaccination.class);
+    }
+
+    private Mono<ServerResponse> getAllPassportVaccinationsFromPet(ServerRequest request) {
+        return ok().contentType(MediaType.APPLICATION_JSON)
+                .body(passportVaccinationService.findAllByPetId(request.pathVariable("id")), PassportVaccination.class);
     }
 
     private Mono<ServerResponse> getPassportVaccinationById(ServerRequest request) {
-        return passportVaccinationService.getById(request.pathVariable("id"))
+        return passportVaccinationService.findById(request.pathVariable("id"))
                 .flatMap(passportVaccination -> ok()
                         .contentType(MediaType.APPLICATION_JSON)
                         .bodyValue(passportVaccination))
@@ -79,7 +87,7 @@ public class PassportVaccinationRouter {
                 .doOnNext(passportVaccination -> passportVaccination.setId(new ObjectId().toHexString()))
                 .flatMap(passportVaccination -> status(CREATED)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .body(passportVaccinationService.save(passportVaccination), PassportVaccination.class));
+                        .body(passportVaccinationService.save(request.pathVariable("id"), passportVaccination), PassportVaccination.class));
     }
 
     private Mono<ServerResponse> updatePassportVaccination(ServerRequest request) {
@@ -87,7 +95,7 @@ public class PassportVaccinationRouter {
                 .doOnNext(validator::validate)
                 .flatMap(passportVaccination -> ok()
                         .contentType(MediaType.APPLICATION_JSON)
-                        .body(passportVaccinationService.update(passportVaccination), PassportVaccination.class))
+                        .body(passportVaccinationService.update(request.pathVariable("id"), passportVaccination), PassportVaccination.class))
                 .switchIfEmpty(notFound);
     }
 
@@ -96,7 +104,7 @@ public class PassportVaccinationRouter {
     }
 
     private Mono<ServerResponse> deletePassportVaccination(ServerRequest request) {
-        return passportVaccinationService.deleteById(request.pathVariable("id"))
+        return passportVaccinationService.removeById(request.pathVariable("id"))
                 .then(noContent().build());
     }
 }

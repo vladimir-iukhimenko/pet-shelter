@@ -27,7 +27,7 @@ public abstract class Pet {
     LocalDate born;
     Sex sex;
     Boolean isSterialized;
-    Photo avatarByPhotoId;
+    Photo avatar;
     String fur;
     String furColor;
     //private Integer curatorByCuratorId; todo:user entity

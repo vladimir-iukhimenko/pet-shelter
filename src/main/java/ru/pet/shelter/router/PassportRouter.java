@@ -33,12 +33,13 @@ public class PassportRouter {
 
     @Bean
     @RouterOperations({
-            @RouterOperation(path = "/passport", beanClass = PassportService.class, beanMethod = "getAll"),
-            @RouterOperation(path = "/passport/{id}", beanClass = PassportService.class, beanMethod = "getById"),
+            @RouterOperation(path = "/passport", beanClass = PassportService.class, beanMethod = "findAll"),
             @RouterOperation(path = "/passport/empty", beanClass = PassportService.class, beanMethod = "empty"),
+            @RouterOperation(path = "/passport/{id}", beanClass = PassportService.class, beanMethod = "findById"),
+            @RouterOperation(path = "/passport/save/{id}", beanClass = PassportService.class, beanMethod = "save"),
             @RouterOperation(path = "/passport/update/{id}", beanClass = PassportService.class, beanMethod = "update"),
-            @RouterOperation(path = "/passport/{id}", beanClass = PassportService.class, beanMethod = "deleteById"),
-            @RouterOperation(path = "/passport/empty", beanClass = PassportService.class, beanMethod = "empty")
+            @RouterOperation(path = "/passport/{id}", beanClass = PassportService.class, beanMethod = "removeById"),
+
     })
     RouterFunction<ServerResponse> passportRoutes() {
         return
@@ -49,11 +50,11 @@ public class PassportRouter {
 
                         .GET("/passport/{id}", this::getPassportById)
 
-                        .POST("/chip/save", this::insertPassport)
+                        .POST("/passport/save/{id}", this::insertPassport)
 
-                        .PUT("/chip/update", this::updatePassport)
+                        .PUT("/passport/update/{id}", this::updatePassport)
 
-                        .DELETE("/chip/{id}", this::deletePassport)
+                        .DELETE("/passport/{id}", this::deletePassport)
 
                         .build();
     }
@@ -61,11 +62,11 @@ public class PassportRouter {
     Mono<ServerResponse> notFound = ServerResponse.notFound().build();
 
     private Mono<ServerResponse> getAllPassports(ServerRequest request) {
-        return ok().contentType(MediaType.APPLICATION_JSON).body(passportService.getAll(), Passport.class);
+        return ok().contentType(MediaType.APPLICATION_JSON).body(passportService.findAll(), Passport.class);
     }
 
     private Mono<ServerResponse> getPassportById(ServerRequest request) {
-        return passportService.getById(request.pathVariable("id"))
+        return passportService.findById(request.pathVariable("id"))
                 .flatMap(passport -> ok()
                         .contentType(MediaType.APPLICATION_JSON)
                         .bodyValue(passport))
@@ -78,7 +79,7 @@ public class PassportRouter {
                 .doOnNext(passport -> passport.setId(new ObjectId().toHexString()))
                 .flatMap(passport -> status(CREATED)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .body(passportService.save(passport), Passport.class));
+                        .body(passportService.save(request.pathVariable("id"), passport), Passport.class));
     }
 
     private Mono<ServerResponse> updatePassport(ServerRequest request) {
@@ -86,7 +87,7 @@ public class PassportRouter {
                 .doOnNext(validator::validate)
                 .flatMap(passport -> ok()
                         .contentType(MediaType.APPLICATION_JSON)
-                        .body(passportService.update(passport), Passport.class))
+                        .body(passportService.update(request.pathVariable("id"), passport), Passport.class))
                 .switchIfEmpty(notFound);
     }
 
@@ -95,7 +96,7 @@ public class PassportRouter {
     }
 
     private Mono<ServerResponse> deletePassport(ServerRequest request) {
-        return passportService.deleteById(request.pathVariable("id"))
+        return passportService.removeById(request.pathVariable("id"))
                 .then(noContent().build());
     }
 }

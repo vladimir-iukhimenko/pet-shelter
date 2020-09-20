@@ -18,29 +18,29 @@ import reactor.core.publisher.Mono;
 import ru.pet.shelter.model.Cat;
 import ru.pet.shelter.model.view.PetView;
 import ru.pet.shelter.router.utils.EntityValidator;
-import ru.pet.shelter.service.CatService;
+import ru.pet.shelter.service.CatPetService;
 
 
 @Configuration
 public class CatRouter {
 
     private final EntityValidator<Cat> validator;
-    private final CatService catService;
+    private final CatPetService catService;
 
     @Autowired
-    public CatRouter(CatService catService, EntityValidator<Cat> validator) {
+    public CatRouter(CatPetService catService, EntityValidator<Cat> validator) {
         this.validator = validator;
         this.catService = catService;
     }
 
     @Bean
     @RouterOperations({
-            @RouterOperation(path = "/cat", beanClass = CatService.class, beanMethod = "getAll"),
-            @RouterOperation(path = "/cat/{id}", beanClass = CatService.class, beanMethod = "getById"),
-            @RouterOperation(path = "/cat/save", beanClass = CatService.class, beanMethod = "save"),
-            @RouterOperation(path = "/cat/update/{id}", beanClass = CatService.class, beanMethod = "update"),
-            @RouterOperation(path = "/cat/{id}", beanClass = CatService.class, beanMethod = "deleteById"),
-            @RouterOperation(path = "/cat/empty", beanClass = CatService.class, beanMethod = "empty")
+            @RouterOperation(path = "/cat", beanClass = CatPetService.class, beanMethod = "getAll"),
+            @RouterOperation(path = "/cat/{id}", beanClass = CatPetService.class, beanMethod = "getById"),
+            @RouterOperation(path = "/cat/save", beanClass = CatPetService.class, beanMethod = "save"),
+            @RouterOperation(path = "/cat/update/{id}", beanClass = CatPetService.class, beanMethod = "update"),
+            @RouterOperation(path = "/cat/{id}", beanClass = CatPetService.class, beanMethod = "deleteById"),
+            @RouterOperation(path = "/cat/empty", beanClass = CatPetService.class, beanMethod = "empty")
     })
     RouterFunction<ServerResponse> catRoutes() {
         return

@@ -14,7 +14,7 @@ import reactor.core.publisher.Mono;
 import ru.pet.shelter.model.Dog;
 import ru.pet.shelter.model.view.PetView;
 import ru.pet.shelter.router.utils.EntityValidator;
-import ru.pet.shelter.service.DogService;
+import ru.pet.shelter.service.DogPetService;
 
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.web.reactive.function.server.RouterFunctions.route;
@@ -24,23 +24,23 @@ import static org.springframework.web.reactive.function.server.ServerResponse.ok
 @Configuration
 public class DogRouter {
 
-    private final DogService dogService;
+    private final DogPetService dogService;
     private final EntityValidator<Dog> validator;
 
     @Autowired
-    public DogRouter(DogService dogService, EntityValidator<Dog> validator) {
+    public DogRouter(DogPetService dogService, EntityValidator<Dog> validator) {
         this.dogService = dogService;
         this.validator = validator;
     }
 
     @Bean
     @RouterOperations({
-            @RouterOperation(path = "/dog", beanClass = DogService.class, beanMethod = "getAll"),
-            @RouterOperation(path = "/dog/{id}", beanClass = DogService.class, beanMethod = "getById"),
-            @RouterOperation(path = "/dog/save", beanClass = DogService.class, beanMethod = "save"),
-            @RouterOperation(path = "/dog/update/{id}", beanClass = DogService.class, beanMethod = "update"),
-            @RouterOperation(path = "/dog/{id}", beanClass = DogService.class, beanMethod = "deleteById"),
-            @RouterOperation(path = "/dog/empty", beanClass = DogService.class, beanMethod = "empty")
+            @RouterOperation(path = "/dog", beanClass = DogPetService.class, beanMethod = "getAll"),
+            @RouterOperation(path = "/dog/{id}", beanClass = DogPetService.class, beanMethod = "getById"),
+            @RouterOperation(path = "/dog/save", beanClass = DogPetService.class, beanMethod = "save"),
+            @RouterOperation(path = "/dog/update/{id}", beanClass = DogPetService.class, beanMethod = "update"),
+            @RouterOperation(path = "/dog/{id}", beanClass = DogPetService.class, beanMethod = "deleteById"),
+            @RouterOperation(path = "/dog/empty", beanClass = DogPetService.class, beanMethod = "empty")
     })
     RouterFunction<ServerResponse> dogRoutes() {
         return

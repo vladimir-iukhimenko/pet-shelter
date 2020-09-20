@@ -34,25 +34,29 @@ public class DescriptionRouter {
 
     @Bean
     @RouterOperations({
-            @RouterOperation(path = "/description", beanClass = DescriptionService.class, beanMethod = "getAll"),
-            @RouterOperation(path = "/description/{id}", beanClass = DescriptionService.class, beanMethod = "getById"),
-            @RouterOperation(path = "/description/save", beanClass = DescriptionService.class, beanMethod = "save"),
+            @RouterOperation(path = "/description/all", beanClass = DescriptionService.class, beanMethod = "findAll"),
+            @RouterOperation(path = "/description/byPet/{id}", beanClass = DescriptionService.class, beanMethod = "findAllByPetId"),
+            @RouterOperation(path = "/description/empty", beanClass = DescriptionService.class, beanMethod = "empty"),
+            @RouterOperation(path = "/description/{id}", beanClass = DescriptionService.class, beanMethod = "findById"),
+            @RouterOperation(path = "/description/save/{id}", beanClass = DescriptionService.class, beanMethod = "save"),
             @RouterOperation(path = "/description/update/{id}", beanClass = DescriptionService.class, beanMethod = "update"),
-            @RouterOperation(path = "/description/{id}", beanClass = DescriptionService.class, beanMethod = "deleteById"),
-            @RouterOperation(path = "/description/empty", beanClass = DescriptionService.class, beanMethod = "empty")
+            @RouterOperation(path = "/description/{id}", beanClass = DescriptionService.class, beanMethod = "removeById")
+
     })
     RouterFunction<ServerResponse> descriptionRoutes() {
         return
                 route()
-                        .GET("/description", this::getAllDescriptions)
+                        .GET("/description/all", this::getAllDescriptions)
+
+                        .GET("/description/byPet/{id}", this::getAllDescriptionsFromPet)
 
                         .GET("/description/empty", this::emptyDescription)
 
                         .GET("/description/{id}", this::getDescriptionById)
 
-                        .POST("/description/save", this::insertDescription)
+                        .POST("/description/save/{id}", this::insertDescription)
 
-                        .PUT("/description/update", this::updateDescription)
+                        .PUT("/description/update/{id}", this::updateDescription)
 
                         .DELETE("/description/{id}", this::deleteDescription)
 
@@ -63,11 +67,16 @@ public class DescriptionRouter {
     Mono<ServerResponse> notFound = ServerResponse.notFound().build();
 
     private Mono<ServerResponse> getAllDescriptions(ServerRequest request) {
-        return ok().contentType(MediaType.APPLICATION_JSON).body(descriptionService.getAll(), Description.class);
+        return ok().contentType(MediaType.APPLICATION_JSON).body(descriptionService.findAll(), Description.class);
+    }
+
+    private Mono<ServerResponse> getAllDescriptionsFromPet(ServerRequest request) {
+        return ok().contentType(MediaType.APPLICATION_JSON)
+                .body(descriptionService.findAllByPetId(request.pathVariable("id")), Description.class);
     }
 
     private Mono<ServerResponse> getDescriptionById(ServerRequest request) {
-        return descriptionService.getById(request.pathVariable("id"))
+        return descriptionService.findById(request.pathVariable("id"))
                 .flatMap(description -> ok()
                         .contentType(MediaType.APPLICATION_JSON)
                         .bodyValue(description))
@@ -80,7 +89,7 @@ public class DescriptionRouter {
                 .doOnNext(description -> description.setId(new ObjectId().toHexString()))
                 .flatMap(description -> status(CREATED)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .body(descriptionService.save(description), Description.class));
+                        .body(descriptionService.save(request.pathVariable("id"), description), Description.class));
     }
 
     private Mono<ServerResponse> updateDescription(ServerRequest request) {
@@ -88,7 +97,7 @@ public class DescriptionRouter {
                 .doOnNext(validator::validate)
                 .flatMap(description -> ok()
                         .contentType(MediaType.APPLICATION_JSON)
-                        .body(descriptionService.update(description), Description.class))
+                        .body(descriptionService.update(request.pathVariable("id"), description), Description.class))
                 .switchIfEmpty(notFound);
     }
 
@@ -97,7 +106,7 @@ public class DescriptionRouter {
     }
 
     private Mono<ServerResponse> deleteDescription(ServerRequest request) {
-        return descriptionService.deleteById(request.pathVariable("id"))
+        return descriptionService.removeById(request.pathVariable("id"))
                 .then(noContent().build());
     }
 }

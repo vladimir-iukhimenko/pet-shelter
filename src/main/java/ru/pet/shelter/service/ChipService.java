@@ -6,29 +6,20 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ServerWebInputException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import ru.pet.shelter.model.Cat;
 import ru.pet.shelter.model.Chip;
-import ru.pet.shelter.model.Dog;
 import ru.pet.shelter.model.Pet;
-import ru.pet.shelter.repository.CatRepository;
-import ru.pet.shelter.repository.DogRepository;
 import ru.pet.shelter.repository.PetRepository;
 
 
 @Service
 @Tag(name = "Chip")
-public class ChipService implements GenericService<Chip> {
-    private final CatRepository catRepository;
-    private final DogRepository dogRepository;
+public class ChipService implements GenericPetService<Chip> {
     private final PetRepository petRepository;
 
     @Autowired
-    public ChipService(CatRepository catRepository, DogRepository dogRepository, PetRepository petRepository) {
-        this.catRepository = catRepository;
-        this.dogRepository = dogRepository;
+    public ChipService(PetRepository petRepository) {
         this.petRepository = petRepository;
     }
 
@@ -36,70 +27,38 @@ public class ChipService implements GenericService<Chip> {
     @Operation(summary = "Возвращает все сущности", responses = {
             @ApiResponse(responseCode = "200", description = "Успешная операция")
     })
-    public Flux<Chip> getAll() {
-        return catRepository.findAll().flatMap(cat -> Mono.justOrEmpty(cat.getChip()))
-                .concatWith(dogRepository.findAll().flatMap(dog -> Mono.justOrEmpty(dog.getChip())));
+    public Flux<Chip> findAll() {
+        return petRepository.findAllChip();
     }
 
     @Override
     @Operation(summary = "Возвращает объект по Id")
-    public Mono<Chip> getById(@Parameter(description = "Id объекта") String chipNumber) {
-        return getAll()
-                .filter(chip -> chip.getChipNumber().equals(chipNumber))
-                .next();
+    public Mono<Chip> findById(@Parameter(description = "Id объекта") String chipNumber) {
+        return petRepository.findChipById(chipNumber);
     }
 
     @Operation(summary = "Сохраняет объект", responses = {
             @ApiResponse(responseCode = "201", description = "Объект создан")
     })
-    public Mono<Chip> save(Chip entity) {
-        return petRepository.findById(entity.getPetId())
-                .flatMap(pet -> {
-                    switch (pet.getClass().getSimpleName()) {
-                        case "Cat": return saveInCat(pet, entity, false);
-                        case "Dog": return saveInDog(pet, entity, false);
-                    }
-                    return Mono.empty();
-                })
-                .switchIfEmpty(Mono.error(new ServerWebInputException("Parent entity not found!")));
+    public Mono<? extends Pet> save(String petId, Chip entity) {
+        return petRepository.saveChip(petId, entity);
     }
 
+    @Override
     @Operation(summary = "Обновляет объект")
-    public Mono<Chip> update(Chip entity) {
-        return save(entity);
+    public Mono<? extends Pet> update(String petId, Chip entity) {
+        return petRepository.updateChip(petId, entity);
     }
 
+    @Override
     @Operation(summary = "Удаляет объект")
-    public Mono<Void> deleteById(@Parameter(description = "Id объекта", required = true) String id) {
-        return getById(id).flatMap(chip -> petRepository.findById(chip.getPetId())
-                .doOnNext(pet -> {
-                    switch (pet.getClass().getSimpleName()) {
-                        case "Cat": saveInCat(pet, chip, true);
-                        case "Dog": saveInDog(pet, chip, true);
-                    }
-                }).then());
+    public Mono<? extends Pet> removeById(@Parameter(description = "Id объекта", required = true) String id) {
+        return petRepository.removeChipById(id);
     }
 
     @Override
     @Operation(summary = "Возвращает пустой объект")
     public Mono<Chip> empty() {
-        return Mono.just(Chip.builder().build());
+        return petRepository.emptyChip();
     }
-
-    private Mono<Chip> saveInCat(Pet pet, Chip chip, boolean toDeletion) {
-        return Mono.just(pet)
-                .cast(Cat.class)
-                .doOnNext(cat -> {if (toDeletion) cat.setChip(Chip.builder().build()); else cat.setChip(chip);})
-                .flatMap(catRepository::save)
-                .map(Cat::getChip);
-    }
-
-    private Mono<Chip> saveInDog(Pet pet, Chip chip, boolean toDeletion) {
-        return Mono.just(pet)
-                .cast(Dog.class)
-                .doOnNext(dog -> {if (toDeletion) dog.setChip(Chip.builder().build()); else dog.setChip(chip);})
-                .flatMap(dogRepository::save)
-                .map(Dog::getChip);
-    }
-
 }

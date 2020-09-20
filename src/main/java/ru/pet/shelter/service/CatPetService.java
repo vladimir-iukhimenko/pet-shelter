@@ -13,13 +13,13 @@ import ru.pet.shelter.repository.CatRepository;
 
 @Service
 @Tag(name = "Cat")
-public class CatService implements GenericService<Cat> {
+public class CatPetService implements GenericPetService<Cat> {
 
     private final CatRepository catRepository;
-    private final ShelterService shelterService;
+    private final ShelterPetService shelterService;
 
     @Autowired
-    public CatService(CatRepository catRepository, ShelterService shelterService) {
+    public CatPetService(CatRepository catRepository, ShelterPetService shelterService) {
         this.catRepository = catRepository;
         this.shelterService = shelterService;
     }

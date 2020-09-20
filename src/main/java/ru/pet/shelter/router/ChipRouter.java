@@ -35,12 +35,12 @@ public class ChipRouter {
 
     @Bean
     @RouterOperations({
-            @RouterOperation(path = "/chip", beanClass = ChipService.class, beanMethod = "getAll"),
-            @RouterOperation(path = "/chip/{id}", beanClass = ChipService.class, beanMethod = "getById"),
+            @RouterOperation(path = "/chip", beanClass = ChipService.class, beanMethod = "findAll"),
             @RouterOperation(path = "/chip/empty", beanClass = ChipService.class, beanMethod = "empty"),
+            @RouterOperation(path = "/chip/{id}", beanClass = ChipService.class, beanMethod = "findById"),
+            @RouterOperation(path = "/chip/save/{id}", beanClass = ChipService.class, beanMethod = "save"),
             @RouterOperation(path = "/chip/update/{id}", beanClass = ChipService.class, beanMethod = "update"),
-            @RouterOperation(path = "/chip/{id}", beanClass = ChipService.class, beanMethod = "deleteById"),
-            @RouterOperation(path = "/chip/empty", beanClass = ChipService.class, beanMethod = "empty")
+            @RouterOperation(path = "/chip/{id}", beanClass = ChipService.class, beanMethod = "removeById")
     })
     RouterFunction<ServerResponse> chipRoutes() {
         return
@@ -51,9 +51,9 @@ public class ChipRouter {
 
                         .GET("/chip/{id}", this::getChipById)
 
-                        .POST("/chip/save", this::insertChip)
+                        .POST("/chip/save/{id}", this::insertChip)
 
-                        .PUT("/chip/update", this::updateChip)
+                        .PUT("/chip/update/{id}", this::updateChip)
 
                         .DELETE("/chip/{id}", this::deleteChip)
 
@@ -63,11 +63,11 @@ public class ChipRouter {
     Mono<ServerResponse> notFound = ServerResponse.notFound().build();
 
     private Mono<ServerResponse> getAllChips(ServerRequest request) {
-        return ok().contentType(MediaType.APPLICATION_JSON).body(chipService.getAll(), Chip.class);
+        return ok().contentType(MediaType.APPLICATION_JSON).body(chipService.findAll(), Chip.class);
     }
 
     private Mono<ServerResponse> getChipById(ServerRequest request) {
-        return chipService.getById(request.pathVariable("id"))
+        return chipService.findById(request.pathVariable("id"))
                 .flatMap(chip -> ok()
                         .contentType(MediaType.APPLICATION_JSON)
                         .bodyValue(chip))
@@ -80,7 +80,7 @@ public class ChipRouter {
                 .doOnNext(chip -> chip.setId(new ObjectId().toHexString()))
                 .flatMap(chip -> status(CREATED)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .body(chipService.save(chip), Chip.class));
+                        .body(chipService.save(request.pathVariable("id"), chip), Chip.class));
     }
 
     private Mono<ServerResponse> updateChip(ServerRequest request) {
@@ -88,7 +88,7 @@ public class ChipRouter {
                 .doOnNext(validator::validate)
                 .flatMap(chip -> ok()
                         .contentType(MediaType.APPLICATION_JSON)
-                        .body(chipService.update(chip), Chip.class))
+                        .body(chipService.update(request.pathVariable("id"), chip), Chip.class))
                 .switchIfEmpty(notFound);
     }
 
@@ -97,7 +97,7 @@ public class ChipRouter {
     }
 
     private Mono<ServerResponse> deleteChip(ServerRequest request) {
-        return chipService.deleteById(request.pathVariable("id"))
+        return chipService.removeById(request.pathVariable("id"))
                 .then(noContent().build());
     }
 

@@ -12,7 +12,7 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
 import ru.pet.shelter.model.Request;
 import ru.pet.shelter.router.utils.EntityValidator;
-import ru.pet.shelter.service.RequestService;
+import ru.pet.shelter.service.RequestPetService;
 
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.web.reactive.function.server.RouterFunctions.route;
@@ -22,23 +22,23 @@ import static org.springframework.web.reactive.function.server.ServerResponse.ok
 @Configuration
 public class RequestRouter {
 
-    private final RequestService requestService;
+    private final RequestPetService requestService;
     private final EntityValidator<Request> validator;
 
     @Autowired
-    public RequestRouter(RequestService requestService, EntityValidator<Request> validator) {
+    public RequestRouter(RequestPetService requestService, EntityValidator<Request> validator) {
         this.requestService = requestService;
         this.validator = validator;
     }
 
     @Bean
     @RouterOperations({
-            @RouterOperation(path = "/request", beanClass = RequestService.class, beanMethod = "getAll"),
-            @RouterOperation(path = "/request/{id}", beanClass = RequestService.class, beanMethod = "getById"),
-            @RouterOperation(path = "/request/save", beanClass = RequestService.class, beanMethod = "save"),
-            @RouterOperation(path = "/request/update/{id}", beanClass = RequestService.class, beanMethod = "update"),
-            @RouterOperation(path = "/request/delete/{id}", beanClass = RequestService.class, beanMethod = "deleteById"),
-            @RouterOperation(path = "/request/empty", beanClass = RequestService.class, beanMethod = "empty")
+            @RouterOperation(path = "/request", beanClass = RequestPetService.class, beanMethod = "getAll"),
+            @RouterOperation(path = "/request/{id}", beanClass = RequestPetService.class, beanMethod = "getById"),
+            @RouterOperation(path = "/request/save", beanClass = RequestPetService.class, beanMethod = "save"),
+            @RouterOperation(path = "/request/update/{id}", beanClass = RequestPetService.class, beanMethod = "update"),
+            @RouterOperation(path = "/request/delete/{id}", beanClass = RequestPetService.class, beanMethod = "deleteById"),
+            @RouterOperation(path = "/request/empty", beanClass = RequestPetService.class, beanMethod = "empty")
     })
     RouterFunction<ServerResponse> requestRoutes() {
         return

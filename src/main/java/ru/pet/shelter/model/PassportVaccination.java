@@ -19,7 +19,5 @@ public class PassportVaccination {
     private LocalDate validityStart;
     @NotNull
     private LocalDate validityEnd;
-    @NotNull
-    private String petId;
 
 }

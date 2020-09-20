@@ -16,7 +16,5 @@ public class Chip {
     private String chipNumber;
     @NotNull
     private LocalDate chipDate;
-    @NotNull
-    private String petId;
 
 }

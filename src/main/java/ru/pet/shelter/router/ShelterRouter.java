@@ -12,7 +12,7 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
 import ru.pet.shelter.model.Shelter;
 import ru.pet.shelter.router.utils.EntityValidator;
-import ru.pet.shelter.service.ShelterService;
+import ru.pet.shelter.service.ShelterPetService;
 
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.web.reactive.function.server.RouterFunctions.route;
@@ -22,23 +22,23 @@ import static org.springframework.web.reactive.function.server.ServerResponse.ok
 @Configuration
 public class ShelterRouter {
 
-    private final ShelterService shelterService;
+    private final ShelterPetService shelterService;
     private final EntityValidator<Shelter> validator;
 
     @Autowired
-    public ShelterRouter(ShelterService shelterService, EntityValidator<Shelter> validator) {
+    public ShelterRouter(ShelterPetService shelterService, EntityValidator<Shelter> validator) {
         this.shelterService = shelterService;
         this.validator = validator;
     }
 
     @Bean
     @RouterOperations({
-            @RouterOperation(path = "/shelter", beanClass = ShelterService.class, beanMethod = "getAll"),
-            @RouterOperation(path = "/shelter/{id}", beanClass = ShelterService.class, beanMethod = "getById"),
-            @RouterOperation(path = "/shelter/save", beanClass = ShelterService.class, beanMethod = "save"),
-            @RouterOperation(path = "/shelter/update/{id}", beanClass = ShelterService.class, beanMethod = "update"),
-            @RouterOperation(path = "/shelter/delete/{id}", beanClass = ShelterService.class, beanMethod = "deleteById"),
-            @RouterOperation(path = "/shelter/empty", beanClass = ShelterService.class, beanMethod = "empty")
+            @RouterOperation(path = "/shelter", beanClass = ShelterPetService.class, beanMethod = "getAll"),
+            @RouterOperation(path = "/shelter/{id}", beanClass = ShelterPetService.class, beanMethod = "getById"),
+            @RouterOperation(path = "/shelter/save", beanClass = ShelterPetService.class, beanMethod = "save"),
+            @RouterOperation(path = "/shelter/update/{id}", beanClass = ShelterPetService.class, beanMethod = "update"),
+            @RouterOperation(path = "/shelter/delete/{id}", beanClass = ShelterPetService.class, beanMethod = "deleteById"),
+            @RouterOperation(path = "/shelter/empty", beanClass = ShelterPetService.class, beanMethod = "empty")
     })
     RouterFunction<ServerResponse> refShelterRoutes() {
         return
