@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
@@ -34,14 +35,13 @@ public class DescriptionRouter {
 
     @Bean
     @RouterOperations({
-            @RouterOperation(path = "/description/all", beanClass = DescriptionService.class, beanMethod = "findAll"),
-            @RouterOperation(path = "/description/byPet/{id}", beanClass = DescriptionService.class, beanMethod = "findAllByPetId"),
-            @RouterOperation(path = "/description/empty", beanClass = DescriptionService.class, beanMethod = "empty"),
-            @RouterOperation(path = "/description/{id}", beanClass = DescriptionService.class, beanMethod = "findById"),
-            @RouterOperation(path = "/description/save/{id}", beanClass = DescriptionService.class, beanMethod = "save"),
-            @RouterOperation(path = "/description/update/{id}", beanClass = DescriptionService.class, beanMethod = "update"),
-            @RouterOperation(path = "/description/{id}", beanClass = DescriptionService.class, beanMethod = "removeById")
-
+            @RouterOperation(path = "/description/all", method = RequestMethod.GET, beanClass = DescriptionService.class, beanMethod = "findAll"),
+            @RouterOperation(path = "/description/byPet/{id}", method = RequestMethod.GET, beanClass = DescriptionService.class, beanMethod = "findAllByPetId"),
+            @RouterOperation(path = "/description/empty", method = RequestMethod.GET, beanClass = DescriptionService.class, beanMethod = "empty"),
+            @RouterOperation(path = "/description/{id}", method = RequestMethod.GET, beanClass = DescriptionService.class, beanMethod = "findById"),
+            @RouterOperation(path = "/description/{id}", method = RequestMethod.POST, beanClass = DescriptionService.class, beanMethod = "save"),
+            @RouterOperation(path = "/description/{id}", method = RequestMethod.PUT, beanClass = DescriptionService.class, beanMethod = "update"),
+            @RouterOperation(path = "/description/{id}", method = RequestMethod.DELETE, beanClass = DescriptionService.class, beanMethod = "removeById")
     })
     RouterFunction<ServerResponse> descriptionRoutes() {
         return
@@ -54,9 +54,9 @@ public class DescriptionRouter {
 
                         .GET("/description/{id}", this::getDescriptionById)
 
-                        .POST("/description/save/{id}", this::insertDescription)
+                        .POST("/description/{id}", this::insertDescription)
 
-                        .PUT("/description/update/{id}", this::updateDescription)
+                        .PUT("/description/{id}", this::updateDescription)
 
                         .DELETE("/description/{id}", this::deleteDescription)
 

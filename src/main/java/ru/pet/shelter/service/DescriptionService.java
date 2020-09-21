@@ -2,6 +2,8 @@ package ru.pet.shelter.service;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +15,7 @@ import ru.pet.shelter.model.Pet;
 import ru.pet.shelter.repository.PetRepository;
 
 @Service
-@Tag(name = "Description")
+@Tag(name = "Description", description = "Описания животных")
 public class DescriptionService implements GenericPetService<Description> {
     private final PetRepository petRepository;
 
@@ -23,45 +25,50 @@ public class DescriptionService implements GenericPetService<Description> {
     }
 
     @Override
-    @Operation(summary = "Возвращает все сущности", responses = {
+    @Operation(operationId = "findAllDescriptions", summary = "Возвращает все сущности", responses = {
             @ApiResponse(responseCode = "200", description = "Успешная операция")
     })
     public Flux<Description> findAll() {
-        return petRepository.findAll().flatMap(pet -> Flux.fromIterable(pet.getDescription()));
+        return petRepository.findAllPet().flatMap(pet -> Flux.fromIterable(pet.getDescription()));
     }
 
-    @Operation(summary = "Возвращает все сущности", responses = {
+    @Operation(operationId = "findAllDescriptionsByPetId", summary = "Возвращает все описания по Id животного", responses = {
             @ApiResponse(responseCode = "200", description = "Успешная операция")
     })
-    public Flux<Description> findAllByPetId(String id) {
+    public Flux<Description> findAllByPetId(@Parameter(in = ParameterIn.PATH, description = "Id животного", required = true) String id) {
         return petRepository.findAllDescription(id);
     }
 
     @Override
-    @Operation(summary = "Возвращает объект по Id")
-    public Mono<Description> findById(@Parameter(description = "Id объекта") String id) {
+    @Operation(operationId = "findDescriptionById", summary = "Возвращает объект по Id")
+    public Mono<Description> findById(@Parameter(in = ParameterIn.PATH, description = "Id описания", required = true) String id) {
         return petRepository.findDescriptionById(id);
     }
 
-    @Operation(summary = "Сохраняет объект", responses = {
+    @Override
+    @Operation(operationId = "saveDescription", summary = "Сохраняет объект", responses = {
             @ApiResponse(responseCode = "201", description = "Объект создан")
     })
-    public Mono<? extends Pet> save(String petId, Description entity) {
+    public Mono<? extends Pet> save(@Parameter(in = ParameterIn.PATH, description = "Id животного", required = true) String petId,
+                                    @RequestBody(required = true) Description entity) {
         return petRepository.saveDescription(petId, entity);
     }
 
-    @Operation(summary = "Обновляет объект")
-    public Mono<? extends Pet> update(String petId, Description entity) {
+    @Override
+    @Operation(operationId = "updateDescription", summary = "Обновляет объект")
+    public Mono<? extends Pet> update(@Parameter(in = ParameterIn.PATH, description = "Id животного", required = true) String petId,
+                                      @RequestBody(required = true) Description entity) {
         return petRepository.updateDescription(petId, entity);
     }
 
-    @Operation(summary = "Удаляет объект")
-    public Mono<? extends Pet> removeById(@Parameter(description = "Id объекта") String id) {
+    @Override
+    @Operation(operationId = "deleteDescription",summary = "Удаляет объект")
+    public Mono<? extends Pet> removeById(@Parameter(in = ParameterIn.PATH, description = "Id описания", required = true) String id) {
         return petRepository.removeChipById(id);
     }
 
     @Override
-    @Operation(summary = "Возвращает пустой объект")
+    @Operation(operationId = "getEmptyDescription", summary = "Возвращает пустой объект-структуру")
     public Mono<Description> empty() {
         return petRepository.emptyDescription();
     }

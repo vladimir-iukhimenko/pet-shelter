@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
@@ -34,13 +35,13 @@ public class PassportVaccinationRouter {
 
     @Bean
     @RouterOperations({
-            @RouterOperation(path = "/pass-vaccine/all", beanClass = PassportVaccinationService.class, beanMethod = "findAll"),
-            @RouterOperation(path = "/pass-vaccine/byPet/{id}", beanClass = PassportVaccinationService.class, beanMethod = "findAllByPetId"),
-            @RouterOperation(path = "/pass-vaccine/empty", beanClass = PassportVaccinationService.class, beanMethod = "empty"),
-            @RouterOperation(path = "/pass-vaccine/{id}", beanClass = PassportVaccinationService.class, beanMethod = "findById"),
-            @RouterOperation(path = "/description/save/{id}", beanClass = PassportVaccinationService.class, beanMethod = "save"),
-            @RouterOperation(path = "/description/update/{id}", beanClass = PassportVaccinationService.class, beanMethod = "update"),
-            @RouterOperation(path = "/pass-vaccine/{id}", beanClass = PassportVaccinationService.class, beanMethod = "removeById"),
+            @RouterOperation(path = "/pass-vaccine/all", method = RequestMethod.GET, beanClass = PassportVaccinationService.class, beanMethod = "findAll"),
+            @RouterOperation(path = "/pass-vaccine/byPet/{id}", method = RequestMethod.GET, beanClass = PassportVaccinationService.class, beanMethod = "findAllByPetId"),
+            @RouterOperation(path = "/pass-vaccine/empty", method = RequestMethod.GET, beanClass = PassportVaccinationService.class, beanMethod = "empty"),
+            @RouterOperation(path = "/pass-vaccine/{id}", method = RequestMethod.GET, beanClass = PassportVaccinationService.class, beanMethod = "findById"),
+            @RouterOperation(path = "/pass-vaccine/{id}", method = RequestMethod.POST, beanClass = PassportVaccinationService.class, beanMethod = "save"),
+            @RouterOperation(path = "/pass-vaccine/{id}", method = RequestMethod.PUT, beanClass = PassportVaccinationService.class, beanMethod = "update"),
+            @RouterOperation(path = "/pass-vaccine/{id}", method = RequestMethod.DELETE, beanClass = PassportVaccinationService.class, beanMethod = "removeById"),
     })
     RouterFunction<ServerResponse> passportVaccinationRoutes() {
         return
@@ -53,9 +54,9 @@ public class PassportVaccinationRouter {
 
                         .GET("/pass-vaccine/{id}", this::getPassportVaccinationById)
 
-                        .POST("/description/save/{id}", this::insertPassportVaccination)
+                        .POST("/pass-vaccine/{id}", this::insertPassportVaccination)
 
-                        .PUT("/description/update/{id}", this::updatePassportVaccination)
+                        .PUT("/pass-vaccine/{id}", this::updatePassportVaccination)
 
                         .DELETE("/pass-vaccine/{id}", this::deletePassportVaccination)
 

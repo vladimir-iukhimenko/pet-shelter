@@ -2,6 +2,8 @@ package ru.pet.shelter.service;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +16,7 @@ import ru.pet.shelter.repository.PetRepository;
 
 
 @Service
-@Tag(name = "Chip")
+@Tag(name = "Chip", description = "Чипы")
 public class ChipService implements GenericPetService<Chip> {
     private final PetRepository petRepository;
 
@@ -24,7 +26,7 @@ public class ChipService implements GenericPetService<Chip> {
     }
 
     @Override
-    @Operation(summary = "Возвращает все сущности", responses = {
+    @Operation(operationId = "findAllChips", summary = "Возвращает все сущности", responses = {
             @ApiResponse(responseCode = "200", description = "Успешная операция")
     })
     public Flux<Chip> findAll() {
@@ -32,32 +34,35 @@ public class ChipService implements GenericPetService<Chip> {
     }
 
     @Override
-    @Operation(summary = "Возвращает объект по Id")
-    public Mono<Chip> findById(@Parameter(description = "Id объекта") String chipNumber) {
+    @Operation(operationId = "findChipById", summary = "Возвращает объект по Id")
+    public Mono<Chip> findById(@Parameter(in = ParameterIn.PATH, description = "Id чипа", required = true) String chipNumber) {
         return petRepository.findChipById(chipNumber);
     }
 
-    @Operation(summary = "Сохраняет объект", responses = {
+    @Override
+    @Operation(operationId = "saveChip", summary = "Сохраняет объект", responses = {
             @ApiResponse(responseCode = "201", description = "Объект создан")
     })
-    public Mono<? extends Pet> save(String petId, Chip entity) {
+    public Mono<? extends Pet> save(@Parameter(in = ParameterIn.PATH, description = "Id животного", required = true) String petId,
+                                    @RequestBody(required = true) Chip entity) {
         return petRepository.saveChip(petId, entity);
     }
 
     @Override
-    @Operation(summary = "Обновляет объект")
-    public Mono<? extends Pet> update(String petId, Chip entity) {
+    @Operation(operationId = "updateChip", summary = "Обновляет объект")
+    public Mono<? extends Pet> update(@Parameter(in = ParameterIn.PATH, description = "Id животного", required = true) String petId,
+                                      @RequestBody(required = true) Chip entity) {
         return petRepository.updateChip(petId, entity);
     }
 
     @Override
-    @Operation(summary = "Удаляет объект")
-    public Mono<? extends Pet> removeById(@Parameter(description = "Id объекта", required = true) String id) {
+    @Operation(operationId = "deleteChip", summary = "Удаляет объект")
+    public Mono<? extends Pet> removeById(@Parameter(in = ParameterIn.PATH, description = "Id чипа", required = true) String id) {
         return petRepository.removeChipById(id);
     }
 
     @Override
-    @Operation(summary = "Возвращает пустой объект")
+    @Operation(operationId = "getEmptyChip", summary = "Возвращает пустой объект-структуру")
     public Mono<Chip> empty() {
         return petRepository.emptyChip();
     }

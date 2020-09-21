@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
@@ -35,13 +36,13 @@ public class PhotoRouter {
 
     @Bean
     @RouterOperations({
-            @RouterOperation(path = "/photo/all", beanClass = PhotoService.class, beanMethod = "findAll"),
-            @RouterOperation(path = "/photo/byPet/{id}", beanClass = PhotoService.class, beanMethod = "findAllByPetId"),
-            @RouterOperation(path = "/photo/empty", beanClass = PhotoService.class, beanMethod = "empty"),
-            @RouterOperation(path = "/photo/{id}", beanClass = PhotoService.class, beanMethod = "findById"),
-            @RouterOperation(path = "/photo/save/{id}", beanClass = PhotoService.class, beanMethod = "save"),
-            @RouterOperation(path = "/photo/update/{id}", beanClass = PhotoService.class, beanMethod = "update"),
-            @RouterOperation(path = "/photo/delete/{id}", beanClass = PhotoService.class, beanMethod = "deleteById")
+            @RouterOperation(path = "/photo/all", method = RequestMethod.GET, beanClass = PhotoService.class, beanMethod = "findAll"),
+            @RouterOperation(path = "/photo/byPet/{id}", method = RequestMethod.GET, beanClass = PhotoService.class, beanMethod = "findAllByPetId"),
+            @RouterOperation(path = "/photo/empty", method = RequestMethod.GET, beanClass = PhotoService.class, beanMethod = "empty"),
+            @RouterOperation(path = "/photo/{id}", method = RequestMethod.GET, beanClass = PhotoService.class, beanMethod = "findById"),
+            @RouterOperation(path = "/photo/{id}", method = RequestMethod.POST, beanClass = PhotoService.class, beanMethod = "save"),
+            @RouterOperation(path = "/photo/{id}", method = RequestMethod.PUT, beanClass = PhotoService.class, beanMethod = "update"),
+            @RouterOperation(path = "/photo/{id}", method = RequestMethod.DELETE, beanClass = PhotoService.class, beanMethod = "removeById")
     })
     RouterFunction<ServerResponse> photoRoutes() {
         return
@@ -54,11 +55,11 @@ public class PhotoRouter {
 
                         .GET("/photo/{id}", this::getPhotoById)
 
-                        .POST("/photo/save/{id}", this::insertPhoto)
+                        .POST("/photo/{id}", this::insertPhoto)
 
-                        .PUT("/photo/update/{id}", this::updatePhoto)
+                        .PUT("/photo/{id}", this::updatePhoto)
 
-                        .DELETE("/photo/delete/{id}", this::deletePhoto)
+                        .DELETE("/photo/{id}", this::deletePhoto)
 
                         .build();
     }
@@ -71,7 +72,7 @@ public class PhotoRouter {
 
     private Mono<ServerResponse> getAllPhotosFromPet(ServerRequest request) {
         return ok().contentType(MediaType.APPLICATION_JSON)
-                .body(photoService.findAllByPet(request.pathVariable("id")), Photo.class);
+                .body(photoService.findAllByPetId(request.pathVariable("id")), Photo.class);
     }
 
     private Mono<ServerResponse> getPhotoById(ServerRequest request) {

@@ -6,13 +6,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
 import ru.pet.shelter.model.Shelter;
 import ru.pet.shelter.router.utils.EntityValidator;
-import ru.pet.shelter.service.ShelterPetService;
+import ru.pet.shelter.service.ShelterService;
 
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.web.reactive.function.server.RouterFunctions.route;
@@ -22,23 +23,24 @@ import static org.springframework.web.reactive.function.server.ServerResponse.ok
 @Configuration
 public class ShelterRouter {
 
-    private final ShelterPetService shelterService;
+    private final ShelterService shelterService;
     private final EntityValidator<Shelter> validator;
 
     @Autowired
-    public ShelterRouter(ShelterPetService shelterService, EntityValidator<Shelter> validator) {
+    public ShelterRouter(ShelterService shelterService, EntityValidator<Shelter> validator) {
         this.shelterService = shelterService;
         this.validator = validator;
     }
 
     @Bean
     @RouterOperations({
-            @RouterOperation(path = "/shelter", beanClass = ShelterPetService.class, beanMethod = "getAll"),
-            @RouterOperation(path = "/shelter/{id}", beanClass = ShelterPetService.class, beanMethod = "getById"),
-            @RouterOperation(path = "/shelter/save", beanClass = ShelterPetService.class, beanMethod = "save"),
-            @RouterOperation(path = "/shelter/update/{id}", beanClass = ShelterPetService.class, beanMethod = "update"),
-            @RouterOperation(path = "/shelter/delete/{id}", beanClass = ShelterPetService.class, beanMethod = "deleteById"),
-            @RouterOperation(path = "/shelter/empty", beanClass = ShelterPetService.class, beanMethod = "empty")
+            @RouterOperation(path = "/shelter", method = RequestMethod.GET, beanClass = ShelterService.class, beanMethod = "findAll"),
+            @RouterOperation(path = "/shelter/empty", method = RequestMethod.GET, beanClass = ShelterService.class, beanMethod = "empty"),
+            @RouterOperation(path = "/shelter/{id}", method = RequestMethod.GET, beanClass = ShelterService.class, beanMethod = "findById"),
+            @RouterOperation(path = "/shelter", method = RequestMethod.POST, beanClass = ShelterService.class, beanMethod = "save"),
+            @RouterOperation(path = "/shelter/{id}", method = RequestMethod.PUT, beanClass = ShelterService.class, beanMethod = "update"),
+            @RouterOperation(path = "/shelter/{id}", method = RequestMethod.DELETE, beanClass = ShelterService.class, beanMethod = "removeById")
+
     })
     RouterFunction<ServerResponse> refShelterRoutes() {
         return
@@ -49,12 +51,11 @@ public class ShelterRouter {
 
                         .GET("/shelter/{id}", this::getShelterById)
 
-                        .POST("/shelter/save", this::insertShelter)
+                        .POST("/shelter", this::insertShelter)
 
-                        .PUT("/shelter/update/{id}", this::updateShelter)
+                        .PUT("/shelter/{id}", this::updateShelter)
 
-                        .DELETE("/shelter/delete/{id}", this::deleteShelter)
-
+                        .DELETE("/shelter/{id}", this::deleteShelter)
 
                         .build();
     }
@@ -62,11 +63,11 @@ public class ShelterRouter {
     Mono<ServerResponse> notFound = ServerResponse.notFound().build();
 
     private Mono<ServerResponse> getAllShelters(ServerRequest request) {
-        return ok().contentType(MediaType.APPLICATION_JSON).body(shelterService.getAll(), Shelter.class);
+        return ok().contentType(MediaType.APPLICATION_JSON).body(shelterService.findAll(), Shelter.class);
     }
 
     private Mono<ServerResponse> getShelterById(ServerRequest request) {
-        return shelterService.getById(request.pathVariable("id"))
+        return shelterService.findById(request.pathVariable("id"))
                 .flatMap(refShelter -> ok()
                         .contentType(MediaType.APPLICATION_JSON)
                         .bodyValue(refShelter))
@@ -91,7 +92,7 @@ public class ShelterRouter {
     }
 
     private Mono<ServerResponse> deleteShelter(ServerRequest request) {
-        return shelterService.deleteById(request.pathVariable("id"))
+        return shelterService.removeById(request.pathVariable("id"))
                 .then(noContent().build());
     }
 

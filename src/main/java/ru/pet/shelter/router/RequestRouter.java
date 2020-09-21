@@ -6,13 +6,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
 import ru.pet.shelter.model.Request;
 import ru.pet.shelter.router.utils.EntityValidator;
-import ru.pet.shelter.service.RequestPetService;
+import ru.pet.shelter.service.RequestService;
 
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.web.reactive.function.server.RouterFunctions.route;
@@ -22,23 +23,24 @@ import static org.springframework.web.reactive.function.server.ServerResponse.ok
 @Configuration
 public class RequestRouter {
 
-    private final RequestPetService requestService;
+    private final RequestService requestService;
     private final EntityValidator<Request> validator;
 
     @Autowired
-    public RequestRouter(RequestPetService requestService, EntityValidator<Request> validator) {
+    public RequestRouter(RequestService requestService, EntityValidator<Request> validator) {
         this.requestService = requestService;
         this.validator = validator;
     }
 
     @Bean
     @RouterOperations({
-            @RouterOperation(path = "/request", beanClass = RequestPetService.class, beanMethod = "getAll"),
-            @RouterOperation(path = "/request/{id}", beanClass = RequestPetService.class, beanMethod = "getById"),
-            @RouterOperation(path = "/request/save", beanClass = RequestPetService.class, beanMethod = "save"),
-            @RouterOperation(path = "/request/update/{id}", beanClass = RequestPetService.class, beanMethod = "update"),
-            @RouterOperation(path = "/request/delete/{id}", beanClass = RequestPetService.class, beanMethod = "deleteById"),
-            @RouterOperation(path = "/request/empty", beanClass = RequestPetService.class, beanMethod = "empty")
+            @RouterOperation(path = "/request", method = RequestMethod.GET, beanClass = RequestService.class, beanMethod = "findAll"),
+            @RouterOperation(path = "/request/empty", method = RequestMethod.GET, beanClass = RequestService.class, beanMethod = "empty"),
+            @RouterOperation(path = "/request/{id}", method = RequestMethod.GET, beanClass = RequestService.class, beanMethod = "findById"),
+            @RouterOperation(path = "/request", method = RequestMethod.POST, beanClass = RequestService.class, beanMethod = "save"),
+            @RouterOperation(path = "/request/{id}", method = RequestMethod.PUT, beanClass = RequestService.class, beanMethod = "update"),
+            @RouterOperation(path = "/request/{id}", method = RequestMethod.DELETE, beanClass = RequestService.class, beanMethod = "removeById")
+
     })
     RouterFunction<ServerResponse> requestRoutes() {
         return
@@ -49,13 +51,11 @@ public class RequestRouter {
 
                         .GET("/request/{id}", this::getRequestById)
 
-                        .POST("/request/save", this::insertRequest)
+                        .POST("/request", this::insertRequest)
 
-                        .PUT("/request/update/{id}", this::updateRequest)
+                        .PUT("/request/{id}", this::updateRequest)
 
-                        .DELETE("/request/delete/{id}", this::deleteRequest)
-
-
+                        .DELETE("/request/{id}", this::deleteRequest)
 
                         .build();
     }
@@ -63,11 +63,11 @@ public class RequestRouter {
     Mono<ServerResponse> notFound = ServerResponse.notFound().build();
 
     private Mono<ServerResponse> getAllRequests(ServerRequest request) {
-        return ok().contentType(MediaType.APPLICATION_JSON).body(requestService.getAll(), Request.class);
+        return ok().contentType(MediaType.APPLICATION_JSON).body(requestService.findAll(), Request.class);
     }
 
     private Mono<ServerResponse> getRequestById(ServerRequest request) {
-        return requestService.getById(request.pathVariable("id"))
+        return requestService.findById(request.pathVariable("id"))
                 .flatMap(petRequest -> ok()
                         .contentType(MediaType.APPLICATION_JSON)
                         .bodyValue(petRequest))
@@ -92,7 +92,7 @@ public class RequestRouter {
     }
 
     private Mono<ServerResponse> deleteRequest(ServerRequest request) {
-        return requestService.deleteById(request.pathVariable("id"))
+        return requestService.removeById(request.pathVariable("id"))
                 .then(noContent().build());
     }
 

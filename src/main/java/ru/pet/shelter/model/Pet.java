@@ -1,6 +1,7 @@
 package ru.pet.shelter.model;
 
 import com.fasterxml.jackson.annotation.JsonView;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
@@ -28,7 +29,9 @@ public abstract class Pet {
     Sex sex;
     Boolean isSterialized;
     Photo avatar;
+    @Schema(description = "Тип шерсти")
     String fur;
+    @Schema(description = "Цвет шерсти")
     String furColor;
     //private Integer curatorByCuratorId; todo:user entity
     @NotNull

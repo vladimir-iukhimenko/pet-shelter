@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.json.Jackson2CodecSupport;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
@@ -14,7 +15,7 @@ import reactor.core.publisher.Mono;
 import ru.pet.shelter.model.Dog;
 import ru.pet.shelter.model.view.PetView;
 import ru.pet.shelter.router.utils.EntityValidator;
-import ru.pet.shelter.service.DogPetService;
+import ru.pet.shelter.service.DogService;
 
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.web.reactive.function.server.RouterFunctions.route;
@@ -24,23 +25,24 @@ import static org.springframework.web.reactive.function.server.ServerResponse.ok
 @Configuration
 public class DogRouter {
 
-    private final DogPetService dogService;
+    private final DogService dogService;
     private final EntityValidator<Dog> validator;
 
     @Autowired
-    public DogRouter(DogPetService dogService, EntityValidator<Dog> validator) {
+    public DogRouter(DogService dogService, EntityValidator<Dog> validator) {
         this.dogService = dogService;
         this.validator = validator;
     }
 
     @Bean
     @RouterOperations({
-            @RouterOperation(path = "/dog", beanClass = DogPetService.class, beanMethod = "getAll"),
-            @RouterOperation(path = "/dog/{id}", beanClass = DogPetService.class, beanMethod = "getById"),
-            @RouterOperation(path = "/dog/save", beanClass = DogPetService.class, beanMethod = "save"),
-            @RouterOperation(path = "/dog/update/{id}", beanClass = DogPetService.class, beanMethod = "update"),
-            @RouterOperation(path = "/dog/{id}", beanClass = DogPetService.class, beanMethod = "deleteById"),
-            @RouterOperation(path = "/dog/empty", beanClass = DogPetService.class, beanMethod = "empty")
+            @RouterOperation(path = "/dog", method = RequestMethod.GET, beanClass = DogService.class, beanMethod = "findAll"),
+            @RouterOperation(path = "/dog/empty", method = RequestMethod.GET, beanClass = DogService.class, beanMethod = "empty"),
+            @RouterOperation(path = "/dog/{id}", method = RequestMethod.GET, beanClass = DogService.class, beanMethod = "findById"),
+            @RouterOperation(path = "/dog", method = RequestMethod.POST, beanClass = DogService.class, beanMethod = "save"),
+            @RouterOperation(path = "/dog", method = RequestMethod.PUT, beanClass = DogService.class, beanMethod = "update"),
+            @RouterOperation(path = "/dog/{id}", method = RequestMethod.DELETE, beanClass = DogService.class, beanMethod = "removeById")
+
     })
     RouterFunction<ServerResponse> dogRoutes() {
         return
@@ -51,9 +53,9 @@ public class DogRouter {
 
                         .GET("/dog/{id}", this::getDogById)
 
-                        .POST("/dog/save", this::insertDog)
+                        .POST("/dog", this::insertDog)
 
-                        .PUT("/dog/update/{id}", this::updateDog)
+                        .PUT("/dog", this::updateDog)
 
                         .DELETE("/dog/{id}", this::deleteDog)
 
@@ -63,11 +65,11 @@ public class DogRouter {
     Mono<ServerResponse> notFound = ServerResponse.notFound().build();
 
     private Mono<ServerResponse> getAllDogs(ServerRequest request) {
-        return ok().contentType(MediaType.APPLICATION_JSON).hint(Jackson2CodecSupport.JSON_VIEW_HINT, PetView.REST.class).body(dogService.getAll(), Dog.class);
+        return ok().contentType(MediaType.APPLICATION_JSON).hint(Jackson2CodecSupport.JSON_VIEW_HINT, PetView.REST.class).body(dogService.findAll(), Dog.class);
     }
 
     private Mono<ServerResponse> getDogById(ServerRequest request) {
-        return dogService.getById(request.pathVariable("id"))
+        return dogService.findById(request.pathVariable("id"))
                 .flatMap(dog -> ok()
                         .contentType(MediaType.APPLICATION_JSON)
                         .hint(Jackson2CodecSupport.JSON_VIEW_HINT, PetView.INTERNAL.class)
@@ -93,7 +95,7 @@ public class DogRouter {
     }
 
     private Mono<ServerResponse> deleteDog(ServerRequest request) {
-        return dogService.deleteById(request.pathVariable("id"))
+        return dogService.removeById(request.pathVariable("id"))
                 .then(noContent().build());
     }
 

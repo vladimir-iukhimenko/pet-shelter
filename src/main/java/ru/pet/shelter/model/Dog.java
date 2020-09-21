@@ -1,5 +1,6 @@
 package ru.pet.shelter.model;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -22,6 +23,7 @@ public class Dog extends Pet {
     private Integer height;
     private Integer weight;
     @NotNull
+    @Schema(description = "Порода")
     private String breed;
     @Valid
     private Passport passport;

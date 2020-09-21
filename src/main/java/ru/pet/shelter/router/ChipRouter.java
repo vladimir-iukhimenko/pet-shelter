@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
@@ -35,12 +36,12 @@ public class ChipRouter {
 
     @Bean
     @RouterOperations({
-            @RouterOperation(path = "/chip", beanClass = ChipService.class, beanMethod = "findAll"),
-            @RouterOperation(path = "/chip/empty", beanClass = ChipService.class, beanMethod = "empty"),
-            @RouterOperation(path = "/chip/{id}", beanClass = ChipService.class, beanMethod = "findById"),
-            @RouterOperation(path = "/chip/save/{id}", beanClass = ChipService.class, beanMethod = "save"),
-            @RouterOperation(path = "/chip/update/{id}", beanClass = ChipService.class, beanMethod = "update"),
-            @RouterOperation(path = "/chip/{id}", beanClass = ChipService.class, beanMethod = "removeById")
+            @RouterOperation(path = "/chip", method = RequestMethod.GET, beanClass = ChipService.class, beanMethod = "findAll"),
+            @RouterOperation(path = "/chip/empty", method = RequestMethod.GET, beanClass = ChipService.class, beanMethod = "empty"),
+            @RouterOperation(path = "/chip/{id}", method = RequestMethod.GET, beanClass = ChipService.class, beanMethod = "findById"),
+            @RouterOperation(path = "/chip/{id}", method = RequestMethod.POST, beanClass = ChipService.class, beanMethod = "save"),
+            @RouterOperation(path = "/chip/{id}", method = RequestMethod.PUT, beanClass = ChipService.class, beanMethod = "update"),
+            @RouterOperation(path = "/chip/{id}", method = RequestMethod.DELETE, beanClass = ChipService.class, beanMethod = "removeById")
     })
     RouterFunction<ServerResponse> chipRoutes() {
         return
@@ -51,9 +52,9 @@ public class ChipRouter {
 
                         .GET("/chip/{id}", this::getChipById)
 
-                        .POST("/chip/save/{id}", this::insertChip)
+                        .POST("/chip/{id}", this::insertChip)
 
-                        .PUT("/chip/update/{id}", this::updateChip)
+                        .PUT("/chip/{id}", this::updateChip)
 
                         .DELETE("/chip/{id}", this::deleteChip)
 

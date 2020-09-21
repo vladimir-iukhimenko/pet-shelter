@@ -9,13 +9,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.data.mongodb.config.AbstractReactiveMongoConfiguration;
 import org.springframework.data.mongodb.repository.config.EnableReactiveMongoRepositories;
-import ru.pet.shelter.config.utils.RegardingInheritanceMongoRepository;
-import ru.pet.shelter.config.utils.RegardingInheritanceMongoRepositoryFactoryBean;
 
 @Configuration
-@EnableReactiveMongoRepositories(repositoryBaseClass = RegardingInheritanceMongoRepository.class,
-                                repositoryFactoryBeanClass = RegardingInheritanceMongoRepositoryFactoryBean.class,
-                                basePackages = {"ru.pet.shelter.repository"})
+@EnableReactiveMongoRepositories(basePackages = {"ru.pet.shelter.repository"})
 public class ReactiveMongoConfiguration extends AbstractReactiveMongoConfiguration {
 
     private final ConnectionString connectionString;

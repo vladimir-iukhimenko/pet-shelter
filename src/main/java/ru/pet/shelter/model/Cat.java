@@ -1,5 +1,6 @@
 package ru.pet.shelter.model;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -9,7 +10,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import java.util.Set;
 
 @Document(collection = "pet")
 @EqualsAndHashCode(callSuper = true)
@@ -22,6 +22,7 @@ public class Cat extends Pet {
     private Integer length;
     private Integer weight;
     @NotNull
+    @Schema(description = "Порода")
     private String breed;
     @Valid
     private Passport passport;

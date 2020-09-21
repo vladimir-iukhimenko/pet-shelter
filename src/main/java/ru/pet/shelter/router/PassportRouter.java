@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
@@ -33,12 +34,12 @@ public class PassportRouter {
 
     @Bean
     @RouterOperations({
-            @RouterOperation(path = "/passport", beanClass = PassportService.class, beanMethod = "findAll"),
-            @RouterOperation(path = "/passport/empty", beanClass = PassportService.class, beanMethod = "empty"),
-            @RouterOperation(path = "/passport/{id}", beanClass = PassportService.class, beanMethod = "findById"),
-            @RouterOperation(path = "/passport/save/{id}", beanClass = PassportService.class, beanMethod = "save"),
-            @RouterOperation(path = "/passport/update/{id}", beanClass = PassportService.class, beanMethod = "update"),
-            @RouterOperation(path = "/passport/{id}", beanClass = PassportService.class, beanMethod = "removeById"),
+            @RouterOperation(path = "/passport", method = RequestMethod.GET, beanClass = PassportService.class, beanMethod = "findAll"),
+            @RouterOperation(path = "/passport/empty", method = RequestMethod.GET, beanClass = PassportService.class, beanMethod = "empty"),
+            @RouterOperation(path = "/passport/{id}", method = RequestMethod.GET, beanClass = PassportService.class, beanMethod = "findById"),
+            @RouterOperation(path = "/passport/{id}", method = RequestMethod.POST, beanClass = PassportService.class, beanMethod = "save"),
+            @RouterOperation(path = "/passport/{id}", method = RequestMethod.PUT, beanClass = PassportService.class, beanMethod = "update"),
+            @RouterOperation(path = "/passport/{id}", method = RequestMethod.DELETE, beanClass = PassportService.class, beanMethod = "removeById"),
 
     })
     RouterFunction<ServerResponse> passportRoutes() {
@@ -50,9 +51,9 @@ public class PassportRouter {
 
                         .GET("/passport/{id}", this::getPassportById)
 
-                        .POST("/passport/save/{id}", this::insertPassport)
+                        .POST("/passport/{id}", this::insertPassport)
 
-                        .PUT("/passport/update/{id}", this::updatePassport)
+                        .PUT("/passport/{id}", this::updatePassport)
 
                         .DELETE("/passport/{id}", this::deletePassport)
 
