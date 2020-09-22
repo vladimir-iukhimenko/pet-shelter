@@ -45,7 +45,7 @@ public class CatRouterTests {
     }
 
     @Test
-    void testFindCatById() {
+    void testFindCatByCorrectId() {
         Cat cat = Cat.builder()
                 .id("100")
                 .name("Марсель")

@@ -12,7 +12,7 @@ public interface CatRepository {
     Mono<Cat> findCatById(String id);
     Mono<Cat> saveCat(Cat cat);
     Mono<Cat> updateCat(Cat cat);
-    Mono<Cat> removeCatById(String id);
+    Mono<Void> removeCatById(String id);
     Mono<Cat> emptyCat();
 
 }

@@ -39,9 +39,9 @@ public class CatRepositoryImpl implements CatRepository {
     }
 
     @Override
-    public Mono<Cat> removeCatById(String id) {
+    public Mono<Void> removeCatById(String id) {
         Query query = new Query(Criteria.where("_id").is(id));
-        return mongoTemplate.findAndRemove(query, Cat.class);
+        return mongoTemplate.findAndRemove(query, Cat.class).then();
     }
 
     @Override

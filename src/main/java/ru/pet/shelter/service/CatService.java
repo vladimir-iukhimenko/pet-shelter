@@ -58,7 +58,7 @@ public class CatService {
     }
 
     @Operation(operationId = "deleteCat", summary = "Удаляет объект")
-    public Mono<Cat> removeById(@Parameter(in = ParameterIn.PATH, description = "Id объекта", required = true) String id) {
+    public Mono<Void> removeById(@Parameter(in = ParameterIn.PATH, description = "Id объекта", required = true) String id) {
          return petRepository.removeCatById(id);
     }
 
