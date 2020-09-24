@@ -3,6 +3,7 @@ package ru.pet.shelter.repository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
+import org.springframework.security.test.context.support.WithMockUser;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -12,6 +13,7 @@ import ru.pet.shelter.model.helper.Sex;
 import java.time.LocalDate;
 
 @DataMongoTest
+@WithMockUser
 public class CatRepositoryTests {
 
     @Autowired

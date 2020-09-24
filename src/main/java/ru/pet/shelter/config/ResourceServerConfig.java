@@ -12,13 +12,13 @@ public class ResourceServerConfig {
 
     @Bean
     public SecurityWebFilterChain configure(ServerHttpSecurity http) {
-        http.exceptionHandling().authenticationEntryPoint(new AuthExceptionEntryPoint());
+        //http.exceptionHandling().authenticationEntryPoint(new AuthExceptionEntryPoint());
 
-        http.csrf().disable()
-                /*.authorizeExchange()
+        http
+                .authorizeExchange()
                 .pathMatchers(SECURED_PATTERN).authenticated()
                 .anyExchange().permitAll()
-                .and().oauth2Login()*/;
+                .and().oauth2Login().and().oauth2Client();
         return http.build();
     }
 }

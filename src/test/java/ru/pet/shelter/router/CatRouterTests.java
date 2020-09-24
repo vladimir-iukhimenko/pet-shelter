@@ -10,6 +10,7 @@ import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
@@ -27,6 +28,7 @@ import java.time.LocalDate;
 @WebFluxTest
 @ContextConfiguration(classes = {CatRouter.class, EntityValidator.class, ResourceServerConfig.class})
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@WithMockUser
 public class CatRouterTests {
 
     @Autowired
