@@ -2,11 +2,11 @@ package ru.pet.shelter.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Primary;
 import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
+import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 
 @EnableWebFluxSecurity
@@ -41,6 +41,11 @@ public class ResourceServerConfig {
     @Bean
     public UserRolesJwtAuthenticationConverter userRolesJwtAuthenticationConverter() {
         return new UserRolesJwtAuthenticationConverter(userDetailsService);
+    }
+
+    @Bean
+    public ReactiveJwtDecoder jwtDecoder() {
+        return new JwtDecoder();
     }
 
 }
