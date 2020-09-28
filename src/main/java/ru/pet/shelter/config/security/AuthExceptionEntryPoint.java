@@ -1,4 +1,4 @@
-package ru.pet.shelter.config;
+package ru.pet.shelter.config.security;
 
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.server.ServerAuthenticationEntryPoint;

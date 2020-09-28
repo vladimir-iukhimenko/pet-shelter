@@ -1,13 +1,15 @@
-package ru.pet.shelter.config;
+package ru.pet.shelter.model;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
+import ru.pet.shelter.dto.UserInfo;
 import ru.pet.shelter.model.helper.Role;
 
 import java.util.Collection;
@@ -16,14 +18,14 @@ import java.util.stream.Collectors;
 
 @Document(collection = "users")
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class User implements UserDetails {
+public class User implements Authentication {
 
     @Id
     private String id;
-    private String firstName;
-    private String lastName;
+    private UserInfo userInfo;
     private List<Role> roles;
 
     @Override
@@ -37,32 +39,32 @@ public class User implements UserDetails {
     }
 
     @Override
-    public String getPassword() {
-        return "n/a";
-    }
-
-    @Override
-    public String getUsername() {
+    public Object getCredentials() {
         return null;
     }
 
     @Override
-    public boolean isAccountNonExpired() {
+    public Object getDetails() {
+        return null;
+    }
+
+    @Override
+    public Object getPrincipal() {
+        return null;
+    }
+
+    @Override
+    public boolean isAuthenticated() {
         return true;
     }
 
     @Override
-    public boolean isAccountNonLocked() {
-        return true;
+    public void setAuthenticated(boolean b) throws IllegalArgumentException {
+
     }
 
     @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return true;
+    public String getName() {
+        return null;
     }
 }
