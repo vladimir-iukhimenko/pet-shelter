@@ -3,6 +3,7 @@ package ru.pet.shelter.config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.web.server.SecurityWebFilterChain;
@@ -44,18 +45,17 @@ public class ResourceServerConfig {
 
 
     @Bean
-    public SecurityWebFilterChain configure(ServerHttpSecurity http) {
+    public SecurityWebFilterChain configure(ServerHttpSecurity http) throws Exception {
         //http.exceptionHandling().authenticationEntryPoint(new AuthExceptionEntryPoint());
         http.cors().disable();
         http.csrf().disable();
 
         http
-                .httpBasic().disable()
                 .authenticationManager(authenticationManager)
                 .securityContextRepository(securityContextRepository)
                 .authorizeExchange()
-                .pathMatchers(SECURED_PATTERN).authenticated()
-                .pathMatchers(NOT_SECURED_PATTERN).permitAll();
+                .pathMatchers(NOT_SECURED_PATTERN).permitAll()
+                .pathMatchers(SECURED_PATTERN).authenticated().and().httpBasic().disable();
         return http.build();
     }
 }
