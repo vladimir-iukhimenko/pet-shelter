@@ -34,6 +34,7 @@ public class ResourceServerConfig {
             "/swagger-resources/**",
             "/swagger-ui.html**",
             "/webjars/**",
+            "/webjars/swagger-ui/oauth2-redirect.html**"
     };
 
 
