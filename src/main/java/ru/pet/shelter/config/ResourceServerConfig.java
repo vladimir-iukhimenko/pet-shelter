@@ -35,7 +35,8 @@ public class ResourceServerConfig {
             "/swagger-ui.html**",
             "/webjars/**",
             "/webjars/swagger-ui/oauth2-redirect.html**",
-            "/favicon.ico"
+            "/favicon.ico",
+            "/oauth2-redirect.html**"
     };
 
 
