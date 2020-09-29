@@ -35,7 +35,7 @@ public class ShelterApplication {
         return new OpenAPI()
                 .info(new Info().title("My API").version("1.0"))
                 .components(new Components().addSecuritySchemes("OAuth2", securityScheme()).addSecuritySchemes("Bearer", bearerSecurity()))
-                .addSecurityItem(new SecurityRequirement().addList("Bearer"));
+                .addSecurityItem(new SecurityRequirement().addList("OAuth2"));
     }
 
     private SecurityScheme securityScheme() {
