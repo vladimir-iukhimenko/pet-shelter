@@ -21,6 +21,8 @@ import ru.pet.shelter.model.view.PetView;
 import ru.pet.shelter.router.utils.EntityValidator;
 import ru.pet.shelter.service.CatService;
 
+import java.nio.file.AccessDeniedException;
+
 
 @Configuration
 public class CatRouter {
@@ -66,7 +68,10 @@ public class CatRouter {
 
 
     private Mono<ServerResponse> getAllCats(ServerRequest request) {
-        return ok().contentType(MediaType.APPLICATION_JSON).hint(Jackson2CodecSupport.JSON_VIEW_HINT, PetView.REST.class).body(catService.findAll(), Cat.class);
+        return ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .hint(Jackson2CodecSupport.JSON_VIEW_HINT, PetView.REST.class)
+                .body(catService.findAll(), Cat.class);
     }
 
     private Mono<ServerResponse> getCatById(ServerRequest request) {

@@ -35,7 +35,6 @@ public class ResourceServerConfig {
             "/webjars/**",
             "/webjars/swagger-ui/oauth2-redirect.html**",
             "/favicon.ico",
-            "/oauth2-redirect.html**"
     };
 
 
@@ -53,11 +52,12 @@ public class ResourceServerConfig {
         http.csrf().disable();
 
         http
-                .authenticationManager(authenticationManager)
-                .securityContextRepository(securityContextRepository)
                 .authorizeExchange()
                 .pathMatchers(NOT_SECURED_PATTERN).permitAll()
-                .pathMatchers(SECURED_PATTERN).authenticated();
+                .pathMatchers(SECURED_PATTERN).authenticated()
+                .and()
+                .authenticationManager(authenticationManager)
+                .securityContextRepository(securityContextRepository);
         return http.build();
     }
 }

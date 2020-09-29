@@ -6,6 +6,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import ru.pet.shelter.dto.UserInfo;
@@ -21,9 +22,14 @@ public class VkTokenChecker {
     @Value("${spring.security.oauth2.client.registration.vk.client-secret}")
     private String clientSecret;
 
+    private final ObjectMapper mapper;
+
+    @Autowired
+    public VkTokenChecker(ObjectMapper objectMapper) {
+        this.mapper = objectMapper;
+    }
 
     public Optional<UserInfo> findUserInfoByToken(String token) {
-        ObjectMapper mapper = new ObjectMapper();
         HttpClient client = HttpClientBuilder.create().build();
         HttpPost checkToken = new HttpPost("https://api.vk.com/method/secure.checkToken?" + "&client_secret=" + clientSecret + "&client_id=" + clientId + "&v=5.21" + "&token=" + token);
         HttpPost retrieveUserInfo = new HttpPost("https://api.vk.com/method/users.get?" + "&client_secret=" + clientSecret + "&access_token=" + token + "&v=5.89");
