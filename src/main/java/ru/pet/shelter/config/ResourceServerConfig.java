@@ -35,7 +35,8 @@ public class ResourceServerConfig {
             "/swagger-ui.html**",
             "/webjars/**",
             "/webjars/swagger-ui/oauth2-redirect.html**",
-            "/favicon.ico"
+            "/favicon.ico",
+            "/oauth2-redirect.html**"
     };
 
 
@@ -47,7 +48,7 @@ public class ResourceServerConfig {
 
 
     @Bean
-    public SecurityWebFilterChain configure(ServerHttpSecurity http) throws Exception {
+    public SecurityWebFilterChain configure(ServerHttpSecurity http) {
         //http.exceptionHandling().authenticationEntryPoint(new AuthExceptionEntryPoint());
         http.cors().disable();
         http.csrf().disable();
@@ -57,7 +58,7 @@ public class ResourceServerConfig {
                 .securityContextRepository(securityContextRepository)
                 .authorizeExchange()
                 .pathMatchers(NOT_SECURED_PATTERN).permitAll()
-                .pathMatchers(SECURED_PATTERN).authenticated().and().httpBasic().disable();
+                .pathMatchers(SECURED_PATTERN).permitAll();
         return http.build();
     }
 }
