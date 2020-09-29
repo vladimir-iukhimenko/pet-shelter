@@ -3,7 +3,6 @@ package ru.pet.shelter.config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.web.server.SecurityWebFilterChain;
@@ -58,7 +57,7 @@ public class ResourceServerConfig {
                 .securityContextRepository(securityContextRepository)
                 .authorizeExchange()
                 .pathMatchers(NOT_SECURED_PATTERN).permitAll()
-                .pathMatchers(SECURED_PATTERN).permitAll();
+                .pathMatchers(SECURED_PATTERN).authenticated();
         return http.build();
     }
 }

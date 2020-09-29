@@ -34,7 +34,7 @@ public class ShelterApplication {
     public OpenAPI customOpenApi() {
         return new OpenAPI()
                 .info(new Info().title("My API").version("1.0"))
-                .components(new Components().addSecuritySchemes("OAuth2", securityScheme()).addSecuritySchemes("Bearer", bearerSecurity()))
+                .components(new Components().addSecuritySchemes("OAuth2", securityScheme()))
                 .addSecurityItem(new SecurityRequirement().addList("OAuth2"));
     }
 
@@ -42,10 +42,10 @@ public class ShelterApplication {
         return new SecurityScheme()
                 .type(SecurityScheme.Type.OAUTH2)
                 .description("This is Oauth2 scheme")
-                .flows(new OAuthFlows().authorizationCode(new OAuthFlow()
-                        .authorizationUrl("https://oauth.vk.com/authorize")
-                        .tokenUrl("https://oauth.vk.com/access_token")));
+                .flows(new OAuthFlows().implicit(new OAuthFlow()
+                        .authorizationUrl("https://oauth.vk.com/authorize").scopes(new Scopes().addString("offline", "offline"))));
     }
+
     private SecurityScheme bearerSecurity() {
         return new SecurityScheme()
                 .type(SecurityScheme.Type.HTTP)
