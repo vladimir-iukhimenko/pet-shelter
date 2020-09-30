@@ -55,8 +55,9 @@ public class ResourceServerConfig {
 
         http
                 .authorizeExchange()
-                .pathMatchers(NOT_SECURED_PATTERN).permitAll()
+                //.pathMatchers(NOT_SECURED_PATTERN).permitAll()
                 .pathMatchers(SECURED_PATTERN).authenticated()
+                .anyExchange().permitAll()
                 .and()
                 .authenticationManager(authenticationManager)
                 .securityContextRepository(securityContextRepository);
