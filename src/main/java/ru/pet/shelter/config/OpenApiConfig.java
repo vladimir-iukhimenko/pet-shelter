@@ -49,6 +49,6 @@ public class OpenApiConfig {
                 .type(SecurityScheme.Type.OAUTH2)
                 .flows(new OAuthFlows().authorizationCode(new OAuthFlow()
                         .authorizationUrl("https://github.com/login/oauth/authorize")
-                        .tokenUrl("https://github.com/login/oauth/access_token")));
+                        .tokenUrl("https://cors-anywhere.herokuapp.com/https://github.com/login/oauth/access_token")));
     }
 }
