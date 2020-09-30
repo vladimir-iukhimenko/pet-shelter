@@ -16,9 +16,9 @@ public class OpenApiConfig {
         return new OpenAPI()
                 .info(info())
                 .components(new Components()
-                        .addSecuritySchemes("OAuth2 Implicit Flow", oauth2ImplicitSecurityScheme())
-                        .addSecuritySchemes("Bearer", bearerHeaderSecurityScheme()))
-                .addSecurityItem(new SecurityRequirement().addList("OAuth2 Implicit Flow").addList("Bearer"));
+                        .addSecuritySchemes("VK OAuth2", oauth2ImplicitSecurityScheme())
+                        .addSecuritySchemes("VK Bearer", bearerHeaderSecurityScheme()))
+                .addSecurityItem(new SecurityRequirement().addList("VK OAuth2").addList("VK Bearer"));
     }
 
     private Info info() {
@@ -34,7 +34,7 @@ public class OpenApiConfig {
                 .type(SecurityScheme.Type.OAUTH2)
                 .description("This is Oauth2 scheme")
                 .flows(new OAuthFlows().implicit(new OAuthFlow()
-                        .authorizationUrl("https://oauth.vk.com/authorize").scopes(new Scopes().addString("offline", "offline"))));
+                        .authorizationUrl("https://oauth.vk.com/authorize").scopes(new Scopes().addString("offline", "Offline (Necessary for VK Oauth2)"))));
     }
 
     private SecurityScheme bearerHeaderSecurityScheme() {

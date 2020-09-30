@@ -6,6 +6,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.web.server.SecurityWebFilterChain;
+import ru.pet.shelter.config.security.AuthExceptionEntryPoint;
 import ru.pet.shelter.config.security.AuthenticationManager;
 import ru.pet.shelter.config.security.SecurityContextRepository;
 
@@ -47,7 +48,8 @@ public class ResourceServerConfig {
 
     @Bean
     public SecurityWebFilterChain configure(ServerHttpSecurity http) {
-        //http.exceptionHandling().authenticationEntryPoint(new AuthExceptionEntryPoint());
+        http.exceptionHandling().authenticationEntryPoint(new AuthExceptionEntryPoint());
+
         http.cors().disable();
         http.csrf().disable();
 
