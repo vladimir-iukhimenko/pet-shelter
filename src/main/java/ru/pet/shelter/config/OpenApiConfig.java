@@ -16,8 +16,9 @@ public class OpenApiConfig {
         return new OpenAPI()
                 .info(info())
                 .components(new Components()
-                        .addSecuritySchemes("VK OAuth2", oauth2ImplicitSecurityScheme())
-                        .addSecuritySchemes("VK Bearer", bearerHeaderSecurityScheme()))
+                        .addSecuritySchemes("VK OAuth2", vkOauth2ImplicitSecurityScheme())
+                        .addSecuritySchemes("VK Bearer", vkBearerHeaderSecurityScheme())
+                        .addSecuritySchemes("Github Oauth2", gitHubOauth2AuthorizationSecurityScheme()))
                 .addSecurityItem(new SecurityRequirement().addList("VK OAuth2").addList("VK Bearer"));
     }
 
@@ -29,7 +30,7 @@ public class OpenApiConfig {
                 .contact(new Contact().name("Vladimir Iukhimenko").email("vlad.imenko@yandex.ru"));
     }
 
-    private SecurityScheme oauth2ImplicitSecurityScheme() {
+    private SecurityScheme vkOauth2ImplicitSecurityScheme() {
         return new SecurityScheme()
                 .type(SecurityScheme.Type.OAUTH2)
                 .description("This is Oauth2 scheme")
@@ -37,9 +38,17 @@ public class OpenApiConfig {
                         .authorizationUrl("https://oauth.vk.com/authorize").scopes(new Scopes().addString("offline", "Offline (Necessary for VK Oauth2)"))));
     }
 
-    private SecurityScheme bearerHeaderSecurityScheme() {
+    private SecurityScheme vkBearerHeaderSecurityScheme() {
         return new SecurityScheme()
                 .type(SecurityScheme.Type.HTTP)
                 .scheme("bearer");
+    }
+
+    private SecurityScheme gitHubOauth2AuthorizationSecurityScheme() {
+        return new SecurityScheme()
+                .type(SecurityScheme.Type.OAUTH2)
+                .flows(new OAuthFlows().authorizationCode(new OAuthFlow()
+                        .authorizationUrl("https://github.com/login/oauth/authorize")
+                        .tokenUrl("https://github.com/login/oauth/access_token")));
     }
 }
