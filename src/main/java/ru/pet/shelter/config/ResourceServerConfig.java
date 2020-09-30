@@ -50,7 +50,6 @@ public class ResourceServerConfig {
     public SecurityWebFilterChain configure(ServerHttpSecurity http) {
         http.exceptionHandling().authenticationEntryPoint(new AuthExceptionEntryPoint());
 
-        http.cors().disable();
         http.csrf().disable();
 
         http
